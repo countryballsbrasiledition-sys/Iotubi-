@@ -8,6 +8,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
         body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 55px; }
 
+        /* --- TELA DE LOGIN --- */
+        #tela-login {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #0f0f0f; z-index: 1000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .login-box { text-align: center; max-width: 320px; width: 100%; }
+        .login-logo { font-size: 2.5rem; font-weight: bold; margin-bottom: 10px; }
+        .login-logo span { background: #ffcc00; color: #000; padding: 2px 12px; border-radius: 8px; font-weight: 900; }
+        .login-sub { color: #aaa; font-size: 0.9rem; margin-bottom: 40px; }
+        .btn-login { width: 100%; background: #fff; color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
+        .btn-login:active { background: #eee; }
+        .btn-visitante { width: 100%; background: #1a1a1a; color: #ffcc00; border: 1px solid #ffcc00; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .btn-visitante:active { background: #2a2a2a; }
+
         /* --- HEADER --- */
         header {
             position: fixed; top: 0; left: 0; width: 100%; height: 55px;
@@ -15,9 +30,10 @@
             justify-content: space-between; padding: 0 16px; z-index: 100;
             border-bottom: 1px solid #272727;
         }
-        .logo { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.3rem; cursor: pointer; color: #fff; text-transform: none; }
-        /* LOGO AMARELA - Visual customizável e moderno */
+        .logo { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.3rem; cursor: pointer; color: #fff; }
         .logo span { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
+        .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #aaa; }
+        .btn-sair { background: none; border: none; color: #ff3333; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-left: 5px; }
 
         /* --- TELAS --- */
         .tela { display: none; padding: 15px; }
@@ -26,7 +42,6 @@
         /* --- HOME (FEED) --- */
         .grid-home { display: flex; flex-direction: column; gap: 20px; }
         .video-card-grande { width: 100%; cursor: pointer; }
-        
         .thumb-grande { 
             width: 100%; aspect-ratio: 16/9; position: relative; border-radius: 12px; 
             overflow: hidden; display: flex; justify-content: center; align-items: center; 
@@ -34,6 +49,340 @@
         }
         .thumb-grande video { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         .play-icon { position: absolute; font-size: 2.5rem; opacity: 0.9; color: #000; z-index: 2; background: #ffcc00; padding: 10px 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
+        .canal-avatar { 
+            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; 
+            display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; background: #ffcc00; color: #000; border: 1px solid #ffcc00;
+        }
+        .home-texto { flex: 1; }
+        .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
+        .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
+
+        /* --- WATCH (PLAYER NATIVO) --- */
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
+        .video-wrapper video { width: 100%; height: 100%; }
+        .watch-info { padding: 12px 4px; }
+        .watch-titulo { font-size: 1.1rem; font-weight: bold; }
+        .watch-meta { font-size: 0.85rem; color: #aaa; margin: 6px 0 12px 0; }
+
+        /* --- FORMULÁRIO DE ENVIO --- */
+        .form-upload { display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; padding: 20px; border-radius: 12px; }
+        .form-grupo { display: flex; flex-direction: column; gap: 6px; }
+        .form-grupo label { font-size: 0.9rem; font-weight: bold; color: #aaa; }
+        .form-grupo input[type="text"] { background: #2f2f2f; border: 1px solid #444; padding: 12px; border-radius: 6px; color: #fff; outline: none; font-size: 0.9rem; }
+        .form-grupo input[type="file"] { background: #2f2f2f; border: 1px solid #444; padding: 10px; border-radius: 6px; color: #fff; font-size: 0.9rem; }
+        
+        .progresso-container { display: none; background: #2f2f2f; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
+        .progresso-barra { background: #ffcc00; height: 100%; width: 0%; transition: width 0.2s; }
+        .progresso-texto { font-size: 0.8rem; color: #ffcc00; text-align: center; margin-top: 4px; display: none; }
+
+        .btn-postar { background: #ffcc00; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .btn-postar:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+
+        /* --- NAV INFERIOR --- */
+        nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background-color: #0f0f0f; border-top: 1px solid #272727;
+            display: flex; justify-content: space-around; align-items: center; z-index: 100;
+        }
+        .nav-item { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; cursor: pointer; width: 25%; }
+        .nav-item.ativo { color: #ffcc00; }
+        .nav-item span { font-size: 1.3rem; }
+    </style>
+</head>
+<body>
+
+    <div id="tela-login">
+        <div class="login-box">
+            <div class="login-logo"><span>Clip</span>Fly</div>
+            <div class="login-sub">Nuvem Global de Vídeos Nativos</div>
+            <button class="btn-login" onclick="window.fazerLoginGoogle()">
+                <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="#000" d="M21.35,11.1H12V12.9H19.52C18.82,16.5 15.69,18.9 12,18.9A7,7 0 0,1 5,11.9A7,7 0 0,1 12,4.9C15.11,4.9 17.77,6.96 18.66,9.81L20.45,9.1C19.26,5.32 15.93,2.6 12,2.6A9.3,9.3 0 0,0 2.7,11.9A9.3,9.3 0 0,0 12,21.2C17,21.2 21.5,17.6 21.5,11.9C21.5,11.63 21.47,11.37 21.35,11.1Z"/></svg>
+                Entrar com o Google
+            </button>
+            <button class="btn-visitante" onclick="window.entrarComoVisitante()">Entrar como Visitante</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
+        <div class="user-info" id="userInfoDisplay">Carregando...</div>
+    </header>
+
+    <div id="tela-home" class="tela ativa">
+        <div class="grid-home" id="feedPrincipal"></div>
+    </div>
+
+    <div id="tela-watch" class="tela">
+        <div class="video-wrapper" id="playerContainer"></div>
+        <div class="watch-info">
+            <div class="watch-titulo" id="watchTitulo">Título</div>
+            <div class="watch-meta" id="watchMeta">Canal</div>
+        </div>
+    </div>
+
+    <div id="tela-postar" class="tela">
+        <h2 style="margin-bottom: 15px;">Publicar Vídeo no ClipFly</h2>
+        <div class="form-upload">
+            <div class="form-grupo">
+                <label>Selecionar Arquivo de Vídeo (Máx: 45 MB)</label>
+                <input type="file" id="inputVideoFile" accept="video/*">
+            </div>
+            <div class="form-grupo">
+                <label>Título do Vídeo</label>
+                <input type="text" id="inputTitulo" placeholder="Digite o título do vídeo">
+            </div>
+
+            <div class="progresso-container" id="progressoContainer">
+                <div class="progresso-barra" id="progressoBarra"></div>
+            </div>
+            <div class="progresso-texto" id="progressoTexto">A voar para a nuvem... 0%</div>
+
+            <button class="btn-postar" id="btnPublicar" onclick="window.salvarNovoVideo()">Publicar no ClipFly Cloud</button>
+        </div>
+    </div>
+
+    <nav>
+        <button class="nav-item ativo" id="nav-home" onclick="window.navegarPara('home')"><span>🏠</span>Home</button>
+        <button class="nav-item" id="nav-postar" onclick="window.navegarPara('postar')"><span>➕</span>Criar</button>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
+            authDomain: "iotube-c09fa.firebaseapp.com",
+            databaseURL: "https://iotube-c09fa-default-rtdb.firebaseio.com/",
+            projectId: "iotube-c09fa",
+            storageBucket: "iotube-c09fa.firebasestorage.app",
+            messagingSenderId: "512127355450",
+            appId: "1:512127355450:web:28ad91d81f0d3b664d0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        
+        const videosDbRef = ref(db, 'videos_nativos');
+
+        let listaVideosGlobais = [];
+        let usuarioAtual = null; 
+        let tipoAcesso = null; 
+
+        // MONITOR DE SESSÃO PERMANENTE
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                usuarioAtual = user;
+                tipoAcesso = "google";
+                document.getElementById('tela-login').style.display = "none";
+                document.getElementById('userInfoDisplay').innerHTML = `👤 ${user.displayName.split(' ')[0]} <button class="btn-sair" onclick="window.fazerLogout()">Sair</button>`;
+            } else {
+                if (localStorage.getItem("clipfly_visitante") === "true") {
+                    usuarioAtual = null;
+                    tipoAcesso = "visitante";
+                    document.getElementById('tela-login').style.display = "none";
+                    document.getElementById('userInfoDisplay').innerHTML = `👀 Visitante <button class="btn-sair" onclick="window.fazerLogout()">Entrar</button>`;
+                } else {
+                    document.getElementById('tela-login').style.display = "flex";
+                    document.getElementById('userInfoDisplay').innerText = "";
+                }
+            }
+        });
+
+        window.fazerLoginGoogle = function() {
+            signInWithPopup(auth, provider)
+                .then(() => {
+                    localStorage.removeItem("clipfly_visitante");
+                })
+                .catch((error) => {
+                    alert("Erro ao fazer login: " + error.message);
+                });
+        }
+
+        window.entrarComoVisitante = function() {
+            localStorage.setItem("clipfly_visitante", "true");
+            tipoAcesso = "visitante";
+            usuarioAtual = null;
+            document.getElementById('tela-login').style.display = "none";
+            document.getElementById('userInfoDisplay').innerHTML = `👀 Visitante <button class="btn-sair" onclick="window.fazerLogout()">Entrar</button>`;
+            window.navegarPara('home');
+        }
+
+        window.fazerLogout = function() {
+            localStorage.removeItem("clipfly_visitante");
+            signOut(auth).then(() => {
+                location.reload();
+            });
+        }
+
+        window.navegarPara = function(telaNome) {
+            // TRAVA DE VISITANTE: Bloqueia a aba de criar vídeos
+            if(telaNome === 'postar' && tipoAcesso === 'visitante') {
+                alert("⚠️ Apenas utilizadores com conta Google podem publicar vídeos no ClipFly!");
+                return;
+            }
+
+            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
+            
+            document.getElementById('tela-' + telaNome).classList.add('ativa');
+            const navBtn = document.getElementById('nav-' + telaNome);
+            if(navBtn) navBtn.classList.add('ativo');
+
+            if(telaNome !== 'watch') {
+                document.getElementById('playerContainer').innerHTML = "";
+            }
+            window.scrollTo(0,0);
+        }
+
+        // SALVAR FICHEIRO MP4 DA GALERIA (MÁX 45 MB)
+        window.salvarNovoVideo = function() {
+            if(tipoAcesso !== 'google' || !usuarioAtual) {
+                alert("⚠️ Erro de permissão: Faça login com o Google.");
+                return;
+            }
+
+            const fileInput = document.getElementById('inputVideoFile');
+            const tituloInput = document.getElementById('inputTitulo').value.trim();
+            const nomeDoCanal = usuarioAtual.displayName; 
+
+            if (fileInput.files.length === 0 || tituloInput === "") {
+                alert("⚠️ Por favor, escolha um ficheiro de vídeo e adicione um título!");
+                return;
+            }
+
+            const videoFile = fileInput.files[0];
+            const tamanhoEmMB = videoFile.size / (1024 * 1024);
+
+            if (tamanhoEmMB > 45) {
+                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e ultrapassa o limite permitido de 45 MB!`);
+                return;
+            }
+
+            const btnPublicar = document.getElementById('btnPublicar');
+            const progressoContainer = document.getElementById('progressoContainer');
+            const progressoBarra = document.getElementById('progressoBarra');
+            const progressoTexto = document.getElementById('progressoTexto');
+
+            btnPublicar.disabled = true;
+            progressoContainer.style.display = "block";
+            progressoTexto.style.display = "block";
+
+            const nomeArquivoUnico = Date.now() + "_" + videoFile.name;
+            const pastaArquivosRef = storageRef(storage, 'videos/' + nomeArquivoUnico);
+
+            const tarefaUpload = uploadBytesResumable(pastaArquivosRef, videoFile);
+
+            tarefaUpload.on('state_changed', 
+                (snapshot) => {
+                    const progresso = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressoBarra.style.width = progresso + "%";
+                    progressoTexto.innerText = `A voar para a nuvem... ${Math.round(progresso)}%`;
+                }, 
+                (erro) => {
+                    alert("Erro no upload do Storage: " + erro.message);
+                    resetarFormulario();
+                }, 
+                () => {
+                    getDownloadURL(tarefaUpload.snapshot.ref).then((linkDoVideoNuvem) => {
+                        const dadosVideo = {
+                            timestamp: Date.now(),
+                            titulo: tituloInput,
+                            canal: "@" + nomeDoCanal.replace(/\s+/g, '').toLowerCase(),
+                            videoUrl: linkDoVideoNuvem
+                        };
+
+                        push(videosDbRef, dadosVideo)
+                            .then(() => {
+                                alert("🎉 Vídeo publicado com sucesso no ClipFly global!");
+                                resetarFormulario();
+                                window.navegarPara('home');
+                            })
+                            .catch((error) => {
+                                alert("Erro ao salvar dados: " + error.message);
+                                resetarFormulario();
+                            });
+                    });
+                }
+            );
+        }
+
+        function resetarFormulario() {
+            document.getElementById('inputVideoFile').value = "";
+            document.getElementById('inputTitulo').value = "";
+            document.getElementById('btnPublicar').disabled = false;
+            document.getElementById('progressoContainer').style.display = "none";
+            document.getElementById('progressoBarra').style.width = "0%";
+            document.getElementById('progressoTexto').style.display = "none";
+        }
+
+        onValue(videosDbRef, (snapshot) => {
+            const data = snapshot.val();
+            listaVideosGlobais = [];
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    listaVideosGlobais.push(data[key]);
+                });
+                listaVideosGlobais.sort((a, b) => b.timestamp - a.timestamp);
+            }
+            renderizarFeed();
+        });
+
+        function renderizarFeed() {
+            const container = document.getElementById('feedPrincipal');
+            container.innerHTML = "";
+
+            if(listaVideosGlobais.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
+                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está vazia!</p>
+                        <p style="font-size: 0.9rem; margin-top: 8px;">Clica em <strong>Criar (➕)</strong> e envia um vídeo da tua galeria!</p>
+                    </div>`;
+                return;
+            }
+
+            listaVideosGlobais.forEach((v, index) => {
+                const card = document.createElement('div');
+                card.className = 'video-card-grande';
+                card.onclick = () => abrirPlayer(index);
+                card.innerHTML = `
+                    <div class="thumb-grande">
+                        <video src="${v.videoUrl}#t=1"></video>
+                        <span class="play-icon">▶</span>
+                    </div>
+                    <div class="home-detalhes">
+                        <div class="canal-avatar">${v.canal.charAt(1).toUpperCase()}</div>
+                        <div class="home-texto">
+                            <div class="home-titulo">${v.titulo}</div>
+                            <div class="home-meta">${v.canal} • ClipFly Cloud</div>
+                        </div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+        window.abrirPlayer = function(index) {
+            const v = listaVideosGlobais[index];
+            const container = document.getElementById('playerContainer');
+
+            window.navegarPara('watch');
+
+            document.getElementById('watchTitulo').innerText = v.titulo;
+            document.getElementById('watchMeta').innerText = `${v.canal} • Carregamento direto`;
+
+            container.innerHTML = `<video src="${v.videoUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
+        }
+    </script>
+</body>
+</html>
 
         .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
         .canal-avatar { 
