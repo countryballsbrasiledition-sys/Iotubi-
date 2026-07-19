@@ -6,25 +6,17 @@
     <title>ClipFly - Native Cloud App</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
-        body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 65px; }
+        body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 55px; }
 
-        /* --- HEADER REFEITO --- */
+        /* --- HEADER --- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 55px;
             background-color: #0f0f0f; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 12px; z-index: 100;
+            justify-content: space-between; padding: 0 16px; z-index: 100;
             border-bottom: 1px solid #272727;
         }
-        .header-esquerda { display: flex; align-items: center; gap: 8px; }
-        .logo { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 1.2rem; cursor: pointer; color: #fff; }
-        .logo span { background: #ffcc00; color: #000; padding: 2px 6px; border-radius: 5px; font-weight: 900; }
-        
-        /* BOTÕES DE CONTA AO LADO DA LOGO */
-        .area-autenticacao { display: flex; align-items: center; gap: 6px; }
-        .btn-hd-google { background: #fff; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 0.72rem; cursor: pointer; }
-        .btn-hd-visitante { background: #1a1a1a; color: #ffcc00; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.72rem; cursor: pointer; }
-        .status-usuario { font-size: 0.75rem; color: #aaa; display: flex; align-items: center; gap: 4px; background: #1a1a1a; padding: 5px 8px; border-radius: 4px; border: 1px solid #272727; }
-        .btn-hd-sair { background: none; border: none; color: #ff3333; font-weight: bold; cursor: pointer; font-size: 0.75rem; margin-left: 4px; }
+        .logo { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.3rem; cursor: pointer; color: #fff; }
+        .logo span { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
 
         /* --- TELAS --- */
         .tela { display: none; padding: 15px; }
@@ -33,6 +25,7 @@
         /* --- HOME (FEED) --- */
         .grid-home { display: flex; flex-direction: column; gap: 20px; }
         .video-card-grande { width: 100%; cursor: pointer; }
+        
         .thumb-grande { 
             width: 100%; aspect-ratio: 16/9; position: relative; border-radius: 12px; 
             overflow: hidden; display: flex; justify-content: center; align-items: center; 
@@ -51,7 +44,7 @@
         .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
         .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
 
-        /* --- WATCH --- */
+        /* --- WATCH (PLAYER NATIVO) --- */
         .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
         .video-wrapper video { width: 100%; height: 100%; }
         .watch-info { padding: 12px 4px; }
@@ -86,15 +79,7 @@
 <body>
 
     <header>
-        <div class="header-esquerda">
-            <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
-        </div>
-        <div class="header-direita" id="containerAutenticacao">
-            <div class="area-autenticacao">
-                <button class="btn-hd-google" onclick="window.fazerLoginGoogle()">Google</button>
-                <button class="btn-hd-visitante" onclick="window.entrarComoVisitante()">Visitante</button>
-            </div>
-        </div>
+        <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
     </header>
 
     <div id="tela-home" class="tela ativa">
@@ -120,6 +105,10 @@
                 <label>Título do Vídeo</label>
                 <input type="text" id="inputTitulo" placeholder="Digite o título do vídeo">
             </div>
+            <div class="form-grupo">
+                <label>Nome do Canal</label>
+                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
+            </div>
 
             <div class="progresso-container" id="progressoContainer">
                 <div class="progresso-barra" id="progressoBarra"></div>
@@ -139,9 +128,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Chaves do teu projeto original
         const firebaseConfig = {
             apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
             authDomain: "iotube-c09fa.firebaseapp.com",
@@ -155,76 +142,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        
         const videosDbRef = ref(db, 'videos_nativos');
 
         let listaVideosGlobais = [];
-        let usuarioAtual = null; 
-        let tipoAcesso = null; 
-
-        // GERENCIADOR DE SESSÃO NA BARRA SUPERIOR
-        onAuthStateChanged(auth, (user) => {
-            const container = document.getElementById('containerAutenticacao');
-            if (user) {
-                usuarioAtual = user;
-                tipoAcesso = "google";
-                localStorage.removeItem("clipfly_visitante");
-                container.innerHTML = `<div class="status-usuario">👤 ${user.displayName.split(' ')[0]} <button class="btn-hd-sair" onclick="window.fazerLogout()">Sair</button></div>`;
-            } else {
-                if (localStorage.getItem("clipfly_visitante") === "true") {
-                    usuarioAtual = null;
-                    tipoAcesso = "visitante";
-                    container.innerHTML = `<div class="status-usuario">👀 Visitante <button class="btn-hd-sair" onclick="window.fazerLogout()">Login</button></div>`;
-                } else {
-                    usuarioAtual = null;
-                    tipoAcesso = null;
-                    container.innerHTML = `
-                        <div class="area-autenticacao">
-                            <button class="btn-hd-google" onclick="window.fazerLoginGoogle()">Google</button>
-                            <button class="btn-hd-visitante" onclick="window.entrarComoVisitante()">Visitante</button>
-                        </div>`;
-                }
-            }
-        });
-
-        window.fazerLoginGoogle = function() {
-            signInWithPopup(auth, provider).catch((error) => {
-                alert("Erro ao entrar com Google: " + error.message);
-            });
-        }
-
-        window.entrarComoVisitante = function() {
-            localStorage.setItem("clipfly_visitante", "true");
-            localStorage.removeItem("clipfly_logado");
-            tipoAcesso = "visitante";
-            usuarioAtual = null;
-            const container = document.getElementById('containerAutenticacao');
-            container.innerHTML = `<div class="status-usuario">👀 Visitante <button class="btn-hd-sair" onclick="window.fazerLogout()">Login</button></div>`;
-            window.navegarPara('home');
-        }
-
-        window.fazerLogout = function() {
-            localStorage.removeItem("clipfly_visitante");
-            signOut(auth).then(() => {
-                location.reload();
-            });
-        }
 
         window.navegarPara = function(telaNome) {
-            // TRAVA DO BOTÃO DE CRIAR SE FOR VISITANTE OU NÃO TIVER CONTA CHOSEN
-            if(telaNome === 'postar') {
-                if(!tipoAcesso) {
-                    alert("⚠️ Escolha uma opção de conta no topo do site antes de postar!");
-                    return;
-                }
-                if(tipoAcesso === 'visitante') {
-                    alert("⚠️ Visitantes não podem postar vídeos! Entre com uma conta Google no menu do topo.");
-                    return;
-                }
-            }
-
             document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
             
@@ -238,27 +160,27 @@
             window.scrollTo(0,0);
         }
 
-        // SALVAR FICHEIRO SEGUINDO A REGRA DE 45 MB COMPLETAMENTE CORRIGIDA
         window.salvarNovoVideo = function() {
-            if(tipoAcesso !== 'google' || !usuarioAtual) {
-                alert("⚠️ Erro de conta: Entre com o seu Google no topo da tela para postar.");
+            const fileInput = document.getElementById('inputVideoFile');
+            const tituloInput = document.getElementById('inputTitulo').value.trim();
+            let canalInput = document.getElementById('inputCanal').value.trim();
+
+            if (fileInput.files.length === 0 || tituloInput === "") {
+                alert("⚠️ Por favor, escolha um ficheiro de vídeo e adicione um título!");
                 return;
             }
 
-            const fileInput = document.getElementById('inputVideoFile');
-            const tituloInput = document.getElementById('inputTitulo').value.trim();
-            const nomeDoCanal = usuarioAtual.displayName; 
-
-            if (fileInput.files.length === 0 || tituloInput === "") {
-                alert("⚠️ Por favor, escolha um arquivo de vídeo da galeria e digite o título!");
-                return;
+            if(canalInput === "") {
+                canalInput = "@anonimo";
+            } else if(!canalInput.startsWith('@')) {
+                canalInput = "@" + canalInput;
             }
 
             const videoFile = fileInput.files[0];
             const tamanhoEmMB = videoFile.size / (1024 * 1024);
 
             if (tamanhoEmMB > 45) {
-                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e passa do limite máximo permitido de 45 MB!`);
+                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e ultrapassa o limite do ClipFly de 45 MB!`);
                 return;
             }
 
@@ -283,7 +205,7 @@
                     progressoTexto.innerText = `A voar para a nuvem... ${Math.round(progresso)}%`;
                 }, 
                 (erro) => {
-                    alert("Erro no Storage: " + erro.message);
+                    alert("Erro ao enviar para a nuvem: " + erro.message);
                     resetarFormulario();
                 }, 
                 () => {
@@ -291,7 +213,7 @@
                         const dadosVideo = {
                             timestamp: Date.now(),
                             titulo: tituloInput,
-                            canal: "@" + nomeDoCanal.replace(/\s+/g, '').toLowerCase(),
+                            canal: canalInput,
                             videoUrl: linkDoVideoNuvem
                         };
 
@@ -302,7 +224,7 @@
                                 window.navegarPara('home');
                             })
                             .catch((error) => {
-                                alert("Erro ao salvar dados de texto: " + error.message);
+                                alert("Erro ao salvar dados: " + error.message);
                                 resetarFormulario();
                             });
                     });
@@ -313,6 +235,7 @@
         function resetarFormulario() {
             document.getElementById('inputVideoFile').value = "";
             document.getElementById('inputTitulo').value = "";
+            document.getElementById('inputCanal').value = "";
             document.getElementById('btnPublicar').disabled = false;
             document.getElementById('progressoContainer').style.display = "none";
             document.getElementById('progressoBarra').style.width = "0%";
@@ -338,8 +261,8 @@
             if(listaVideosGlobais.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
-                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está limpa e vazia!</p>
-                        <p style="font-size: 0.9rem; margin-top: 8px;">Seja o primeiro! Mude para conta Google e envie um vídeo nativo.</p>
+                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está vazia!</p>
+                        <p style="font-size: 0.9rem; margin-top: 8px;">Clica em <strong>Criar (➕)</strong> e envia um vídeo da tua galeria!</p>
                     </div>`;
                 return;
             }
@@ -377,5 +300,5 @@
         }
     </script>
 </body>
-        </html>
-            
+                    </html>
+                    
