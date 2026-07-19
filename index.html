@@ -75,6 +75,7 @@
         .nav-item.ativo { color: #ffcc00; }
         .nav-item span { font-size: 1.3rem; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -113,7 +114,7 @@
             <div class="progresso-container" id="progressoContainer">
                 <div class="progresso-barra" id="progressoBarra"></div>
             </div>
-            <div class="progresso-texto" id="progressoTexto">A voar para a nuvem... 0%</div>
+            <div class="progresso-texto" id="progressoTexto">A voar para a nuvem do Supabase... 0%</div>
 
             <button class="btn-postar" id="btnPublicar" onclick="window.salvarNovoVideo()">Publicar no ClipFly Cloud</button>
         </div>
@@ -124,25 +125,12 @@
         <button class="nav-item" id="nav-postar" onclick="window.navegarPara('postar')"><span>➕</span>Criar</button>
     </nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+    <script>
+        // Configuração das tuas chaves públicas e do teu projeto Supabase
+        const SUPABASE_URL = "https://qduinyqqmztwlqsbfvbt.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_ecprMZ_lgXZgolBuUpOknQ_1y5ox7zn";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
-            authDomain: "iotube-c09fa.firebaseapp.com",
-            databaseURL: "https://iotube-c09fa-default-rtdb.firebaseio.com/",
-            projectId: "iotube-c09fa",
-            storageBucket: "iotube-c09fa.firebasestorage.app",
-            messagingSenderId: "512127355450",
-            appId: "1:512127355450:web:28ad91d81f0d3b664d0"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-        const videosDbRef = ref(db, 'videos_nativos');
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let listaVideosGlobais = [];
 
@@ -160,7 +148,7 @@
             window.scrollTo(0,0);
         }
 
-        window.salvarNovoVideo = function() {
+        window.salvarNovoVideo = async function() {
             const fileInput = document.getElementById('inputVideoFile');
             const tituloInput = document.getElementById('inputTitulo').value.trim();
             let canalInput = document.getElementById('inputCanal').value.trim();
@@ -193,43 +181,64 @@
             progressoContainer.style.display = "block";
             progressoTexto.style.display = "block";
 
-            const nomeArquivoUnico = Date.now() + "_" + videoFile.name;
-            const pastaArquivosRef = storageRef(storage, 'videos/' + nomeArquivoUnico);
+            const nomeArquivoUnico = Date.now() + "_" + videoFile.name.replace(/\s+/g, '_');
 
-            const tarefaUpload = uploadBytesResumable(pastaArquivosRef, videoFile);
-
-            tarefaUpload.on('state_changed', 
-                (snapshot) => {
-                    const progresso = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressoBarra.style.width = progresso + "%";
-                    progressoTexto.innerText = `A voar para a nuvem... ${Math.round(progresso)}%`;
-                }, 
-                (erro) => {
-                    alert("Erro ao enviar para a nuvem: " + erro.message);
-                    resetarFormulario();
-                }, 
-                () => {
-                    getDownloadURL(tarefaUpload.snapshot.ref).then((linkDoVideoNuvem) => {
-                        const dadosVideo = {
-                            timestamp: Date.now(),
-                            titulo: tituloInput,
-                            canal: canalInput,
-                            videoUrl: linkDoVideoNuvem
-                        };
-
-                        push(videosDbRef, dadosVideo)
-                            .then(() => {
-                                alert("🎉 Vídeo publicado com sucesso no ClipFly!");
-                                resetarFormulario();
-                                window.navegarPara('home');
-                            })
-                            .catch((error) => {
-                                alert("Erro ao salvar dados: " + error.message);
-                                resetarFormulario();
-                            });
-                    });
+            // Simulação visual de progresso rápido para o upload no Supabase
+            let progressoFake = 0;
+            const intervaloProgresso = setInterval(() => {
+                if(progressoFake < 90) {
+                    progressoFake += 5;
+                    progressoBarra.style.width = progressoFake + "%";
+                    progressoTexto.innerText = `A voar para a nuvem... ${progressoFake}%`;
                 }
-            );
+            }, 400);
+
+            try {
+                // 1. Upload do vídeo para o Storage (bucket 'videos')
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('videos')
+                    .upload(nomeArquivoUnico, videoFile, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (uploadError) throw uploadError;
+
+                // 2. Gerar URL pública do vídeo enviado
+                const { data: urlData } = supabase.storage
+                    .from('videos')
+                    .getPublicUrl(nomeArquivoUnico);
+
+                const linkDoVideoNuvem = urlData.publicUrl;
+
+                // 3. Guardar os dados na tabela 'videos_nativos'
+                const { error: dbError } = await supabase
+                    .from('videos_nativos')
+                    .insert([
+                        { 
+                            timestamp: Date.now(), 
+                            titulo: tituloInput, 
+                            canal: canalInput, 
+                            video_url: linkDoVideoNuvem 
+                        }
+                    ]);
+
+                if (dbError) throw dbError;
+
+                clearInterval(intervaloProgresso);
+                progressoBarra.style.width = "100%";
+                progressoTexto.innerText = "Concluído!";
+
+                alert("🎉 Vídeo publicado com sucesso no ClipFly (Supabase Cloud)!");
+                resetarFormulario();
+                carregarVideosDoSupabase();
+                window.navegarPara('home');
+
+            } catch (error) {
+                clearInterval(intervaloProgresso);
+                alert("Erro ao enviar: " + error.message);
+                resetarFormulario();
+            }
         }
 
         function resetarFormulario() {
@@ -242,17 +251,21 @@
             document.getElementById('progressoTexto').style.display = "none";
         }
 
-        onValue(videosDbRef, (snapshot) => {
-            const data = snapshot.val();
-            listaVideosGlobais = [];
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    listaVideosGlobais.push(data[key]);
-                });
-                listaVideosGlobais.sort((a, b) => b.timestamp - a.timestamp);
+        async function carregarVideosDoSupabase() {
+            try {
+                const { data, error } = await supabase
+                    .from('videos_nativos')
+                    .select('*')
+                    .order('timestamp', { ascending: false });
+
+                if (error) throw error;
+
+                listaVideosGlobais = data || [];
+                renderizarFeed();
+            } catch (error) {
+                console.error("Erro ao carregar dados do feed:", error.message);
             }
-            renderizarFeed();
-        });
+        }
 
         function renderizarFeed() {
             const container = document.getElementById('feedPrincipal');
@@ -273,14 +286,14 @@
                 card.onclick = () => abrirPlayer(index);
                 card.innerHTML = `
                     <div class="thumb-grande">
-                        <video src="${v.videoUrl}#t=1"></video>
+                        <video src="${v.video_url}#t=1"></video>
                         <span class="play-icon">▶</span>
                     </div>
                     <div class="home-detalhes">
                         <div class="canal-avatar">${v.canal.charAt(1).toUpperCase()}</div>
                         <div class="home-texto">
                             <div class="home-titulo">${v.titulo}</div>
-                            <div class="home-meta">${v.canal} • ClipFly Cloud</div>
+                            <div class="home-meta">${v.canal} • Supabase Cloud</div>
                         </div>
                     </div>`;
                 container.appendChild(card);
@@ -296,9 +309,12 @@
             document.getElementById('watchTitulo').innerText = v.titulo;
             document.getElementById('watchMeta').innerText = `${v.canal} • Carregamento nativo`;
 
-            container.innerHTML = `<video src="${v.videoUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
+            container.innerHTML = `<video src="${v.video_url}" controls autoplay style="width:100%; height:100%;"></video>`;
         }
+
+        // Carrega os vídeos automaticamente assim que o app abre
+        carregarVideosDoSupabase();
     </script>
 </body>
-                    </html>
-                    
+    </html>
+    
