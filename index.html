@@ -6,34 +6,25 @@
     <title>ClipFly - Native Cloud App</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
-        body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 55px; }
+        body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 65px; }
 
-        /* --- TELA DE LOGIN --- */
-        #tela-login {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #0f0f0f; z-index: 1000; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-box { text-align: center; max-width: 320px; width: 100%; }
-        .login-logo { font-size: 2.5rem; font-weight: bold; margin-bottom: 10px; }
-        .login-logo span { background: #ffcc00; color: #000; padding: 2px 12px; border-radius: 8px; font-weight: 900; }
-        .login-sub { color: #aaa; font-size: 0.9rem; margin-bottom: 40px; }
-        .btn-login { width: 100%; background: #fff; color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; }
-        .btn-login:active { background: #eee; }
-        .btn-visitante { width: 100%; background: #1a1a1a; color: #ffcc00; border: 1px solid #ffcc00; padding: 14px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        .btn-visitante:active { background: #2a2a2a; }
-
-        /* --- HEADER --- */
+        /* --- HEADER REFEITO --- */
         header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 55px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
             background-color: #0f0f0f; display: flex; align-items: center;
-            justify-content: space-between; padding: 0 16px; z-index: 100;
+            justify-content: space-between; padding: 0 12px; z-index: 100;
             border-bottom: 1px solid #272727;
         }
-        .logo { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.3rem; cursor: pointer; color: #fff; }
-        .logo span { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 6px; font-weight: 900; }
-        .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #aaa; }
-        .btn-sair { background: none; border: none; color: #ff3333; font-weight: bold; cursor: pointer; font-size: 0.8rem; margin-left: 5px; }
+        .header-esquerda { display: flex; align-items: center; gap: 8px; }
+        .logo { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 1.2rem; cursor: pointer; color: #fff; }
+        .logo span { background: #ffcc00; color: #000; padding: 2px 6px; border-radius: 5px; font-weight: 900; }
+        
+        /* BOTÕES DE CONTA AO LADO DA LOGO */
+        .area-autenticacao { display: flex; align-items: center; gap: 6px; }
+        .btn-hd-google { background: #fff; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-size: 0.72rem; cursor: pointer; }
+        .btn-hd-visitante { background: #1a1a1a; color: #ffcc00; border: 1px solid #ffcc00; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.72rem; cursor: pointer; }
+        .status-usuario { font-size: 0.75rem; color: #aaa; display: flex; align-items: center; gap: 4px; background: #1a1a1a; padding: 5px 8px; border-radius: 4px; border: 1px solid #272727; }
+        .btn-hd-sair { background: none; border: none; color: #ff3333; font-weight: bold; cursor: pointer; font-size: 0.75rem; margin-left: 4px; }
 
         /* --- TELAS --- */
         .tela { display: none; padding: 15px; }
@@ -60,7 +51,7 @@
         .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
         .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
 
-        /* --- WATCH (PLAYER NATIVO) --- */
+        /* --- WATCH --- */
         .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
         .video-wrapper video { width: 100%; height: 100%; }
         .watch-info { padding: 12px 4px; }
@@ -94,21 +85,16 @@
 </head>
 <body>
 
-    <div id="tela-login">
-        <div class="login-box">
-            <div class="login-logo"><span>Clip</span>Fly</div>
-            <div class="login-sub">Nuvem Global de Vídeos Nativos</div>
-            <button class="btn-login" onclick="window.fazerLoginGoogle()">
-                <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="#000" d="M21.35,11.1H12V12.9H19.52C18.82,16.5 15.69,18.9 12,18.9A7,7 0 0,1 5,11.9A7,7 0 0,1 12,4.9C15.11,4.9 17.77,6.96 18.66,9.81L20.45,9.1C19.26,5.32 15.93,2.6 12,2.6A9.3,9.3 0 0,0 2.7,11.9A9.3,9.3 0 0,0 12,21.2C17,21.2 21.5,17.6 21.5,11.9C21.5,11.63 21.47,11.37 21.35,11.1Z"/></svg>
-                Entrar com o Google
-            </button>
-            <button class="btn-visitante" onclick="window.entrarComoVisitante()">Entrar como Visitante</button>
-        </div>
-    </div>
-
     <header>
-        <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
-        <div class="user-info" id="userInfoDisplay">Carregando...</div>
+        <div class="header-esquerda">
+            <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
+        </div>
+        <div class="header-direita" id="containerAutenticacao">
+            <div class="area-autenticacao">
+                <button class="btn-hd-google" onclick="window.fazerLoginGoogle()">Google</button>
+                <button class="btn-hd-visitante" onclick="window.entrarComoVisitante()">Visitante</button>
+            </div>
+        </div>
     </header>
 
     <div id="tela-home" class="tela ativa">
@@ -155,6 +141,7 @@
         import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // Chaves do teu projeto original
         const firebaseConfig = {
             apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
             authDomain: "iotube-c09fa.firebaseapp.com",
@@ -177,42 +164,44 @@
         let usuarioAtual = null; 
         let tipoAcesso = null; 
 
-        // MONITOR DE SESSÃO PERMANENTE
+        // GERENCIADOR DE SESSÃO NA BARRA SUPERIOR
         onAuthStateChanged(auth, (user) => {
+            const container = document.getElementById('containerAutenticacao');
             if (user) {
                 usuarioAtual = user;
                 tipoAcesso = "google";
-                document.getElementById('tela-login').style.display = "none";
-                document.getElementById('userInfoDisplay').innerHTML = `👤 ${user.displayName.split(' ')[0]} <button class="btn-sair" onclick="window.fazerLogout()">Sair</button>`;
+                localStorage.removeItem("clipfly_visitante");
+                container.innerHTML = `<div class="status-usuario">👤 ${user.displayName.split(' ')[0]} <button class="btn-hd-sair" onclick="window.fazerLogout()">Sair</button></div>`;
             } else {
                 if (localStorage.getItem("clipfly_visitante") === "true") {
                     usuarioAtual = null;
                     tipoAcesso = "visitante";
-                    document.getElementById('tela-login').style.display = "none";
-                    document.getElementById('userInfoDisplay').innerHTML = `👀 Visitante <button class="btn-sair" onclick="window.fazerLogout()">Entrar</button>`;
+                    container.innerHTML = `<div class="status-usuario">👀 Visitante <button class="btn-hd-sair" onclick="window.fazerLogout()">Login</button></div>`;
                 } else {
-                    document.getElementById('tela-login').style.display = "flex";
-                    document.getElementById('userInfoDisplay').innerText = "";
+                    usuarioAtual = null;
+                    tipoAcesso = null;
+                    container.innerHTML = `
+                        <div class="area-autenticacao">
+                            <button class="btn-hd-google" onclick="window.fazerLoginGoogle()">Google</button>
+                            <button class="btn-hd-visitante" onclick="window.entrarComoVisitante()">Visitante</button>
+                        </div>`;
                 }
             }
         });
 
         window.fazerLoginGoogle = function() {
-            signInWithPopup(auth, provider)
-                .then(() => {
-                    localStorage.removeItem("clipfly_visitante");
-                })
-                .catch((error) => {
-                    alert("Erro ao fazer login: " + error.message);
-                });
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("Erro ao entrar com Google: " + error.message);
+            });
         }
 
         window.entrarComoVisitante = function() {
             localStorage.setItem("clipfly_visitante", "true");
+            localStorage.removeItem("clipfly_logado");
             tipoAcesso = "visitante";
             usuarioAtual = null;
-            document.getElementById('tela-login').style.display = "none";
-            document.getElementById('userInfoDisplay').innerHTML = `👀 Visitante <button class="btn-sair" onclick="window.fazerLogout()">Entrar</button>`;
+            const container = document.getElementById('containerAutenticacao');
+            container.innerHTML = `<div class="status-usuario">👀 Visitante <button class="btn-hd-sair" onclick="window.fazerLogout()">Login</button></div>`;
             window.navegarPara('home');
         }
 
@@ -224,10 +213,16 @@
         }
 
         window.navegarPara = function(telaNome) {
-            // TRAVA DE VISITANTE: Bloqueia a aba de criar vídeos
-            if(telaNome === 'postar' && tipoAcesso === 'visitante') {
-                alert("⚠️ Apenas utilizadores com conta Google podem publicar vídeos no ClipFly!");
-                return;
+            // TRAVA DO BOTÃO DE CRIAR SE FOR VISITANTE OU NÃO TIVER CONTA CHOSEN
+            if(telaNome === 'postar') {
+                if(!tipoAcesso) {
+                    alert("⚠️ Escolha uma opção de conta no topo do site antes de postar!");
+                    return;
+                }
+                if(tipoAcesso === 'visitante') {
+                    alert("⚠️ Visitantes não podem postar vídeos! Entre com uma conta Google no menu do topo.");
+                    return;
+                }
             }
 
             document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
@@ -243,10 +238,10 @@
             window.scrollTo(0,0);
         }
 
-        // SALVAR FICHEIRO MP4 DA GALERIA (MÁX 45 MB)
+        // SALVAR FICHEIRO SEGUINDO A REGRA DE 45 MB COMPLETAMENTE CORRIGIDA
         window.salvarNovoVideo = function() {
             if(tipoAcesso !== 'google' || !usuarioAtual) {
-                alert("⚠️ Erro de permissão: Faça login com o Google.");
+                alert("⚠️ Erro de conta: Entre com o seu Google no topo da tela para postar.");
                 return;
             }
 
@@ -255,7 +250,7 @@
             const nomeDoCanal = usuarioAtual.displayName; 
 
             if (fileInput.files.length === 0 || tituloInput === "") {
-                alert("⚠️ Por favor, escolha um ficheiro de vídeo e adicione um título!");
+                alert("⚠️ Por favor, escolha um arquivo de vídeo da galeria e digite o título!");
                 return;
             }
 
@@ -263,7 +258,7 @@
             const tamanhoEmMB = videoFile.size / (1024 * 1024);
 
             if (tamanhoEmMB > 45) {
-                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e ultrapassa o limite permitido de 45 MB!`);
+                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e passa do limite máximo permitido de 45 MB!`);
                 return;
             }
 
@@ -288,7 +283,7 @@
                     progressoTexto.innerText = `A voar para a nuvem... ${Math.round(progresso)}%`;
                 }, 
                 (erro) => {
-                    alert("Erro no upload do Storage: " + erro.message);
+                    alert("Erro no Storage: " + erro.message);
                     resetarFormulario();
                 }, 
                 () => {
@@ -302,12 +297,12 @@
 
                         push(videosDbRef, dadosVideo)
                             .then(() => {
-                                alert("🎉 Vídeo publicado com sucesso no ClipFly global!");
+                                alert("🎉 Vídeo publicado com sucesso no ClipFly!");
                                 resetarFormulario();
                                 window.navegarPara('home');
                             })
                             .catch((error) => {
-                                alert("Erro ao salvar dados: " + error.message);
+                                alert("Erro ao salvar dados de texto: " + error.message);
                                 resetarFormulario();
                             });
                     });
@@ -343,8 +338,8 @@
             if(listaVideosGlobais.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
-                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está vazia!</p>
-                        <p style="font-size: 0.9rem; margin-top: 8px;">Clica em <strong>Criar (➕)</strong> e envia um vídeo da tua galeria!</p>
+                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está limpa e vazia!</p>
+                        <p style="font-size: 0.9rem; margin-top: 8px;">Seja o primeiro! Mude para conta Google e envie um vídeo nativo.</p>
                     </div>`;
                 return;
             }
@@ -376,773 +371,11 @@
             window.navegarPara('watch');
 
             document.getElementById('watchTitulo').innerText = v.titulo;
-            document.getElementById('watchMeta').innerText = `${v.canal} • Carregamento direto`;
+            document.getElementById('watchMeta').innerText = `${v.canal} • Carregamento nativo`;
 
             container.innerHTML = `<video src="${v.videoUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
         }
     </script>
 </body>
-</html>
-
-        .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
-        .canal-avatar { 
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; background: #ffcc00; color: #000; border: 1px solid #ffcc00;
-        }
-        .home-texto { flex: 1; }
-        .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
-        .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
-
-        /* --- WATCH (PLAYER NATIVO) --- */
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
-        .video-wrapper video { width: 100%; height: 100%; }
-        .watch-info { padding: 12px 4px; }
-        .watch-titulo { font-size: 1.1rem; font-weight: bold; }
-        .watch-meta { font-size: 0.85rem; color: #aaa; margin: 6px 0 12px 0; }
-
-        /* --- FORMULÁRIO DE ENVIO --- */
-        .form-upload { display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; padding: 20px; border-radius: 12px; }
-        .form-grupo { display: flex; flex-direction: column; gap: 6px; }
-        .form-grupo label { font-size: 0.9rem; font-weight: bold; color: #aaa; }
-        .form-grupo input[type="text"] { background: #2f2f2f; border: 1px solid #444; padding: 12px; border-radius: 6px; color: #fff; outline: none; font-size: 0.9rem; }
-        .form-grupo input[type="file"] { background: #2f2f2f; border: 1px solid #444; padding: 10px; border-radius: 6px; color: #fff; font-size: 0.9rem; }
-        
-        /* BARRA DE PROGRESSO COM DETALHES EM AMARELO */
-        .progresso-container { display: none; background: #2f2f2f; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        .progresso-barra { background: #ffcc00; height: 100%; width: 0%; transition: width 0.2s; }
-        .progresso-texto { font-size: 0.8rem; color: #ffcc00; text-align: center; margin-top: 4px; display: none; }
-
-        .btn-postar { background: #ffcc00; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn-postar:disabled { background: #555; color: #aaa; cursor: not-allowed; }
-
-        /* --- NAV INFERIOR --- */
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background-color: #0f0f0f; border-top: 1px solid #272727;
-            display: flex; justify-content: space-around; align-items: center; z-index: 100;
-        }
-        .nav-item { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; cursor: pointer; width: 25%; }
-        .nav-item.ativo { color: #ffcc00; }
-        .nav-item span { font-size: 1.3rem; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo" onclick="window.navegarPara('home')"><span>Clip</span>Fly</div>
-    </header>
-
-    <div id="tela-home" class="tela ativa">
-        <div class="grid-home" id="feedPrincipal"></div>
-    </div>
-
-    <div id="tela-watch" class="tela">
-        <div class="video-wrapper" id="playerContainer"></div>
-        <div class="watch-info">
-            <div class="watch-titulo" id="watchTitulo">Título</div>
-            <div class="watch-meta" id="watchMeta">Canal</div>
-        </div>
-    </div>
-
-    <div id="tela-postar" class="tela">
-        <h2 style="margin-bottom: 15px;">Publicar Vídeo no ClipFly</h2>
-        <div class="form-upload">
-            <div class="form-grupo">
-                <label>Selecionar Arquivo de Vídeo (Máx: 45 MB)</label>
-                <input type="file" id="inputVideoFile" accept="video/*">
-            </div>
-            <div class="form-grupo">
-                <label>Título do Vídeo</label>
-                <input type="text" id="inputTitulo" placeholder="Digite o título do vídeo">
-            </div>
-            <div class="form-grupo">
-                <label>Nome do Canal</label>
-                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
-            </div>
-
-            <div class="progresso-container" id="progressoContainer">
-                <div class="progresso-barra" id="progressoBarra"></div>
-            </div>
-            <div class="progresso-texto" id="progressoTexto">A voar para a nuvem... 0%</div>
-
-            <button class="btn-postar" id="btnPublicar" onclick="window.salvarNovoVideo()">Publicar no ClipFly Cloud</button>
-        </div>
-    </div>
-
-    <nav>
-        <button class="nav-item ativo" id="nav-home" onclick="window.navegarPara('home')"><span>🏠</span>Home</button>
-        <button class="nav-item" id="nav-postar" onclick="window.navegarPara('postar')"><span>➕</span>Criar</button>
-    </nav>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-
-        // Chaves mantidas exatamente do teu projeto original das fotos
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
-            authDomain: "iotube-c09fa.firebaseapp.com",
-            databaseURL: "https://iotube-c09fa-default-rtdb.firebaseio.com/",
-            projectId: "iotube-c09fa",
-            storageBucket: "iotube-c09fa.firebasestorage.app",
-            messagingSenderId: "512127355450",
-            appId: "1:512127355450:web:28ad91d81f0d3b664d0"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-        const videosDbRef = ref(db, 'videos_nativos');
-
-        let listaVideosGlobais = [];
-
-        window.navegarPara = function(telaNome) {
-            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
+        </html>
             
-            document.getElementById('tela-' + telaNome).classList.add('ativa');
-            const navBtn = document.getElementById('nav-' + telaNome);
-            if(navBtn) navBtn.classList.add('ativo');
-
-            if(telaNome !== 'watch') {
-                document.getElementById('playerContainer').innerHTML = "";
-            }
-            window.scrollTo(0,0);
-        }
-
-        // SALVAR FICHEIRO DE VÍDEO COM A TRAVA DE 45 MB
-        window.salvarNovoVideo = function() {
-            const fileInput = document.getElementById('inputVideoFile');
-            const tituloInput = document.getElementById('inputTitulo').value.trim();
-            const canalInput = document.getElementById('inputCanal').value.trim() || "@anonimo";
-
-            if (fileInput.files.length === 0 || tituloInput === "") {
-                alert("⚠️ Por favor, escolha um ficheiro de vídeo e adicione um título!");
-                return;
-            }
-
-            const videoFile = fileInput.files[0];
-            const tamanhoEmMB = videoFile.size / (1024 * 1024);
-
-            // TRAVA DE SEGURANÇA
-            if (tamanhoEmMB > 45) {
-                alert(`⚠️ O vídeo selecionado tem ${tamanhoEmMB.toFixed(1)} MB e ultrapassa o limite do ClipFly de 45 MB! Escolha um vídeo mais curto para economizar a nuvem.`);
-                return;
-            }
-
-            const btnPublicar = document.getElementById('btnPublicar');
-            const progressoContainer = document.getElementById('progressoContainer');
-            const progressoBarra = document.getElementById('progressoBarra');
-            const progressoTexto = document.getElementById('progressoTexto');
-
-            btnPublicar.disabled = true;
-            progressoContainer.style.display = "block";
-            progressoTexto.style.display = "block";
-
-            const nomeArquivoUnico = Date.now() + "_" + videoFile.name;
-            const pastaArquivosRef = storageRef(storage, 'videos/' + nomeArquivoUnico);
-
-            const tarefaUpload = uploadBytesResumable(pastaArquivosRef, videoFile);
-
-            tarefaUpload.on('state_changed', 
-                (snapshot) => {
-                    const progresso = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressoBarra.style.width = progresso + "%";
-                    progressoTexto.innerText = `A voar para a nuvem... ${Math.round(progresso)}%`;
-                }, 
-                (erro) => {
-                    alert("Erro ao enviar arquivo para o Storage: " + erro.message);
-                    resetarFormulario();
-                }, 
-                () => {
-                    getDownloadURL(tarefaUpload.snapshot.ref).then((linkDoVideoNuvem) => {
-                        const dadosVideo = {
-                            timestamp: Date.now(),
-                            titulo: tituloInput,
-                            canal: canalInput,
-                            videoUrl: linkDoVideoNuvem
-                        };
-
-                        push(videosDbRef, dadosVideo)
-                            .then(() => {
-                                alert("🎉 Vídeo publicado com sucesso no ClipFly global!");
-                                resetarFormulario();
-                                window.navegarPara('home');
-                            })
-                            .catch((error) => {
-                                alert("Erro ao salvar no banco de dados: " + error.message);
-                                resetarFormulario();
-                            });
-                    });
-                }
-            );
-        }
-
-        function resetarFormulario() {
-            document.getElementById('inputVideoFile').value = "";
-            document.getElementById('inputTitulo').value = "";
-            document.getElementById('inputCanal').value = "";
-            document.getElementById('btnPublicar').disabled = false;
-            document.getElementById('progressoContainer').style.display = "none";
-            document.getElementById('progressoBarra').style.width = "0%";
-            document.getElementById('progressoTexto').style.display = "none";
-        }
-
-        // ATUALIZAÇÃO EM TEMPO REAL DO FEED DO CLIPFLY
-        onValue(videosDbRef, (snapshot) => {
-            const data = snapshot.val();
-            listaVideosGlobais = [];
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    listaVideosGlobais.push(data[key]);
-                });
-                listaVideosGlobais.sort((a, b) => b.timestamp - a.timestamp);
-            }
-            renderizarFeed();
-        });
-
-        function renderizarFeed() {
-            const container = document.getElementById('feedPrincipal');
-            container.innerHTML = "";
-
-            if(listaVideosGlobais.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
-                        <p style="font-size: 1.2rem;">A nuvem do ClipFly está limpa e vazia!</p>
-                        <p style="font-size: 0.9rem; margin-top: 8px;">Clica em <strong>Criar (➕)</strong> e estreia a rede com um vídeo!</p>
-                    </div>`;
-                return;
-            }
-
-            listaVideosGlobais.forEach((v, index) => {
-                const card = document.createElement('div');
-                card.className = 'video-card-grande';
-                card.onclick = () => abrirPlayer(index);
-                card.innerHTML = `
-                    <div class="thumb-grande">
-                        <video src="${v.videoUrl}#t=1"></video>
-                        <span class="play-icon">▶</span>
-                    </div>
-                    <div class="home-detalhes">
-                        <div class="canal-avatar">${v.canal.charAt(0).toUpperCase()}</div>
-                        <div class="home-texto">
-                            <div class="home-titulo">${v.titulo}</div>
-                            <div class="home-meta">${v.canal} • ClipFly Cloud Stream</div>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        window.abrirPlayer = function(index) {
-            const v = listaVideosGlobais[index];
-            const container = document.getElementById('playerContainer');
-
-            window.navegarPara('watch');
-
-            document.getElementById('watchTitulo').innerText = v.titulo;
-            document.getElementById('watchMeta').innerText = `${v.canal} • Carregamento direto`;
-
-            container.innerHTML = `<video src="${v.videoUrl}" controls autoplay style="width:100%; height:100%;"></video>`;
-        }
-    </script>
-</body>
-</html>
-        .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
-        .canal-avatar { 
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; background: #333; color: #fff; border: 1px solid #444;
-        }
-        .home-texto { flex: 1; }
-        .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
-        .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
-
-        /* --- WATCH (PLAYER) --- */
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
-        .video-wrapper div { width: 100%; height: 100%; }
-        .watch-info { padding: 12px 4px; }
-        .watch-titulo { font-size: 1.1rem; font-weight: bold; }
-        .watch-meta { font-size: 0.85rem; color: #aaa; margin: 6px 0 12px 0; }
-        .config-aviso { font-size: 0.75rem; color: #ffcc00; background: #221a00; padding: 8px; border-radius: 6px; margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
-
-        /* --- FORMULÁRIO --- */
-        .form-upload { display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; padding: 20px; border-radius: 12px; }
-        .form-grupo { display: flex; flex-direction: column; gap: 6px; }
-        .form-grupo label { font-size: 0.9rem; font-weight: bold; color: #aaa; }
-        .form-grupo input { background: #2f2f2f; border: 1px solid #444; padding: 12px; border-radius: 6px; color: #fff; outline: none; font-size: 0.9rem; }
-        .btn-postar { background: #ff0000; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn-postar:active { background: #cc0000; }
-
-        /* --- NAV INFERIOR --- */
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background-color: #0f0f0f; border-top: 1px solid #272727;
-            display: flex; justify-content: space-around; align-items: center; z-index: 100;
-        }
-        .nav-item { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; cursor: pointer; width: 25%; }
-        .nav-item.ativo { color: #fff; }
-        .nav-item span { font-size: 1.3rem; }
-    </style>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        // Preenchido automaticamente com as chaves das suas fotos!
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwIptB4KsRlReTdvJ3QxxAJs",
-            authDomain: "iotube-c09fa.firebaseapp.com",
-            databaseURL: "https://iotube-c09fa-default-rtdb.firebaseio.com/",
-            projectId: "iotube-c09fa",
-            storageBucket: "iotube-c09fa.firebasestorage.app",
-            messagingSenderId: "512127355450",
-            appId: "1:512127355450:web:28ad91d81f0d3b664d0"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const videosRef = ref(db, 'videos');
-
-        let listaVideosGlobais = [];
-        let playerYt = null;
-
-        window.navegarPara = function(telaNome) {
-            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
-            
-            document.getElementById('tela-' + telaNome).classList.add('ativa');
-            const navBtn = document.getElementById('nav-' + telaNome);
-            if(navBtn) navBtn.classList.add('ativo');
-
-            if(telaNome !== 'watch' && playerYt) {
-                try { playerYt.destroy(); playerYt = null; } catch(e){}
-                document.getElementById('playerContainer').innerHTML = '<div id="ytPlayerNativo"></div>';
-            }
-            window.scrollTo(0,0);
-        }
-
-        function extrairYoutubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        window.salvarNovoVideo = function() {
-            const urlInput = document.getElementById('inputUrl').value.trim();
-            const tituloInput = document.getElementById('inputTitulo').value.trim();
-            const canalInput = document.getElementById('inputCanal').value.trim() || "@anonimo";
-
-            if (urlInput === "" || tituloInput === "") {
-                alert("⚠️ Preencha o Link e o Título!");
-                return;
-            }
-
-            const novoVideo = {
-                timestamp: Date.now(),
-                titulo: tituloInput,
-                canal: canalInput,
-                url: urlInput
-            };
-
-            push(videosRef, novoVideo)
-                .then(() => {
-                    document.getElementById('inputUrl').value = "";
-                    document.getElementById('inputTitulo').value = "";
-                    document.getElementById('inputCanal').value = "";
-                    alert("🎉 Vídeo publicado na Nuvem! Todos os celulares já podem ver.");
-                    window.navegarPara('home');
-                })
-                .catch((error) => {
-                    alert("Erro de permissão no banco de dados. Verifique a aba Rules.");
-                });
-        }
-
-        onValue(videosRef, (snapshot) => {
-            const data = snapshot.val();
-            listaVideosGlobais = [];
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    listaVideosGlobais.push(data[key]);
-                });
-                listaVideosGlobais.sort((a, b) => b.timestamp - a.timestamp);
-            }
-            renderizarFeed();
-        });
-
-        function renderizarFeed() {
-            const container = document.getElementById('feedPrincipal');
-            container.innerHTML = "";
-
-            if(listaVideosGlobais.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
-                        <p style="font-size: 1.2rem;">O Iotubi está sem vídeos globais!</p>
-                        <p style="font-size: 0.9rem; margin-top: 8px;">Vá em <strong>Criar (➕)</strong> e poste o primeiro link!</p>
-                    </div>`;
-                return;
-            }
-
-            listaVideosGlobais.forEach((v, index) => {
-                const ytId = extrairYoutubeId(v.url);
-                const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : '';
-
-                const card = document.createElement('div');
-                card.className = 'video-card-grande';
-                card.onclick = () => abrirPlayer(index);
-                card.innerHTML = `
-                    <div class="thumb-grande">
-                        ${thumbUrl ? `<img src="${thumbUrl}">` : `<span class="play-icon">▶</span>`}
-                    </div>
-                    <div class="home-detalhes">
-                        <div class="canal-avatar">${v.canal.charAt(0).toUpperCase()}</div>
-                        <div class="home-texto">
-                            <div class="home-titulo">${v.titulo}</div>
-                            <div class="home-meta">${v.canal} • Sincronizado</div>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-        }
-
-        window.abrirPlayer = function(index) {
-            const v = listaVideosGlobais[index];
-            const ytId = extrairYoutubeId(v.url);
-
-            window.navegarPara('watch');
-
-            document.getElementById('watchTitulo').innerText = v.titulo;
-            document.getElementById('watchMeta').innerText = `${v.canal} • Qualidade original`;
-
-            if(ytId) {
-                playerYt = new YT.Player('ytPlayerNativo', {
-                    height: '100%',
-                    width: '100%',
-                    videoId: ytId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'rel': 0,
-                        'cc_load_policy': 1
-                    }
-                });
-            } else {
-                document.getElementById('playerContainer').innerHTML = `<video src="${v.url}" controls autoplay style="width:100%; height:100%;"></video>`;
-            }
-        }
-    </script>
-</head>
-<body>
-
-    <header>
-        <div class="logo" onclick="window.navegarPara('home')"><span>Io</span>tubi</div>
-    </header>
-
-    <div id="tela-home" class="tela ativa">
-        <div class="grid-home" id="feedPrincipal"></div>
-    </div>
-
-    <div id="tela-watch" class="tela">
-        <div class="video-wrapper" id="playerContainer">
-            <div id="ytPlayerNativo"></div>
-        </div>
-        <div class="watch-info">
-            <div class="config-aviso">⚙️ Altere resolução e legendas nos botões do próprio Player.</div>
-            <div class="watch-titulo" id="watchTitulo">Título</div>
-            <div class="watch-meta" id="watchMeta">Canal</div>
-        </div>
-    </div>
-
-    <div id="tela-postar" class="tela">
-        <h2 style="margin-bottom: 15px;">Publicar Vídeo Global</h2>
-        <div class="form-upload">
-            <div class="form-grupo">
-                <label>Link do Vídeo (YouTube)</label>
-                <input type="text" id="inputUrl" placeholder="https://www.youtube.com/watch?v=...">
-            </div>
-            <div class="form-grupo">
-                <label>Título do Vídeo</label>
-                <input type="text" id="inputTitulo" placeholder="Digite o título">
-            </div>
-            <div class="form-grupo">
-                <label>Nome do Canal</label>
-                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
-            </div>
-            <button class="btn-postar" onclick="window.salvarNovoVideo()">Publicar no Iotubi Cloud</button>
-        </div>
-    </div>
-
-    <nav>
-        <button class="nav-item ativo" id="nav-home" onclick="window.navegarPara('home')"><span>🏠</span>Home</button>
-        <button class="nav-item" id="nav-postar" onclick="window.navegarPara('postar')"><span>➕</span>Criar</button>
-    </nav>
-
-</body>
-</html>
-//www.youtube.com/embed/${ytId}?autoplay=1&rel=0&cc_load_policy=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            } else {
-                container.innerHTML = `<video src="${v.url}" controls autoplay style="width:100%; height:100%;"></video>`;
-            }
-
-            document.getElementById('watchTitulo').innerText = v.titulo;
-            document.getElementById('watchMeta').innerText = `${v.canal} • Qualidade & Legendas Disponíveis`;
-
-            window.navegarPara('watch');
-        }
-    </script>
-</head>
-<body>
-
-    <header>
-        <div class="logo" onclick="window.navegarPara('home')"><span>Io</span>tubi</div>
-    </header>
-
-    <div id="tela-home" class="tela ativa">
-        <div class="grid-home" id="feedPrincipal"></div>
-    </div>
-
-    <div id="tela-watch" class="tela">
-        <div class="video-wrapper" id="playerContainer"></div>
-        <div class="watch-info">
-            <div class="config-aviso">⚙️ Altere a Qualidade e Legendas nos botões internos do próprio Player.</div>
-            <div class="watch-titulo" id="watchTitulo">Título</div>
-            <div class="watch-meta" id="watchMeta">Canal</div>
-        </div>
-    </div>
-
-    <div id="tela-postar" class="tela">
-        <h2 style="margin-bottom: 15px;">Publicar Vídeo Global</h2>
-        <div class="form-upload">
-            <div class="form-grupo">
-                <label>Link do Vídeo (YouTube)</label>
-                <input type="text" id="inputUrl" placeholder="https://www.youtube.com/watch?v=...">
-            </div>
-            <div class="form-grupo">
-                <label>Título do Vídeo</label>
-                <input type="text" id="inputTitulo" placeholder="Digite o título">
-            </div>
-            <div class="form-grupo">
-                <label>Nome do Canal</label>
-                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
-            </div>
-            <button class="btn-postar" onclick="window.salvarNovoVideo()">Publicar no Iotubi Sincronizado</button>
-        </div>
-    </div>
-
-    <nav>
-        <button class="nav-item ativo" id="nav-home" onclick="window.navegarPara('home')"><span>🏠</span>Home</button>
-        <button class="nav-item" id="nav-postar" onclick="window.navegarPara('postar')"><span>➕</span>Criar</button>
-    </nav>
-
-</body>
-</html>
-        .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
-        .canal-avatar { 
-            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; 
-            display: flex; justify-content: center; align-items: center; 
-            font-weight: bold; background: #ff0000; color: #fff; 
-        }
-        .home-texto { flex: 1; }
-        .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
-        .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
-
-        /* --- WATCH (PLAYER) --- */
-        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
-        .video-wrapper video { width: 100%; height: 100%; object-fit: contain; }
-        .watch-info { padding: 12px 4px; }
-        .watch-titulo { font-size: 1.1rem; font-weight: bold; }
-        .watch-meta { font-size: 0.85rem; color: #aaa; margin: 6px 0 12px 0; }
-
-        /* --- ENVIAR VÍDEO (FORMULÁRIO) --- */
-        .form-upload { display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; padding: 20px; border-radius: 12px; }
-        .form-grupo { display: flex; flex-direction: column; gap: 6px; }
-        .form-grupo label { font-size: 0.9rem; font-weight: bold; color: #aaa; }
-        .form-grupo input[type="text"] { background: #2f2f2f; border: 1px solid #444; padding: 10px; border-radius: 6px; color: #fff; outline: none; }
-        .file-label { background: #272727; border: 2px dashed #555; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .file-label input { display: none; }
-        .btn-postar { background: #ff0000; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
-        .btn-postar:active { background: #cc0000; }
-
-        /* --- NAV INFERIOR --- */
-        nav {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background-color: #0f0f0f; border-top: 1px solid #272727;
-            display: flex; justify-content: space-around; align-items: center; z-index: 100;
-        }
-        .nav-item { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; cursor: pointer; width: 25%; }
-        .nav-item.ativo { color: #fff; }
-        .nav-item span { font-size: 1.3rem; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo" onclick="navegarPara('home')"><span>Io</span>tubi</div>
-    </header>
-
-    <div id="tela-home" class="tela ativa">
-        <div class="grid-home" id="feedPrincipal"></div>
-    </div>
-
-    <div id="tela-watch" class="tela">
-        <div class="video-wrapper">
-            <video id="videoPlayer" controls autoplay></video>
-        </div>
-        <div class="watch-info">
-            <div class="watch-titulo" id="watchTitulo">Título</div>
-            <div class="watch-meta" id="watchMeta">Canal • Postado agora</div>
-        </div>
-    </div>
-
-    <div id="tela-postar" class="tela">
-        <h2 style="margin-bottom: 15px;">Criar nova postagem</h2>
-        <div class="form-upload">
-            <div class="form-grupo">
-                <label>Arquivo de Vídeo</label>
-                <label class="file-label" id="fileLabel">
-                    📁 Selecionar da Galeria
-                    <input type="file" id="inputVideo" accept="video/*" onchange="atualizarTextoArquivo()">
-                </label>
-            </div>
-            <div class="form-grupo">
-                <label>Título do Vídeo</label>
-                <input type="text" id="inputTitulo" placeholder="Ex: Meu clipe favorito!">
-            </div>
-            <div class="form-grupo">
-                <label>Nome do Canal</label>
-                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
-            </div>
-            <button class="btn-postar" onclick="salvarNovoVideo()">Publicar Vídeo</button>
-        </div>
-    </div>
-
-    <nav>
-        <button class="nav-item ativo" id="nav-home" onclick="navegarPara('home')"><span>🏠</span>Home</button>
-        <button class="nav-item" id="nav-postar" onclick="navegarPara('postar')"><span>➕</span>Criar</button>
-    </nav>
-
-    <script>
-        // Carrega os vídeos salvos no navegador ou inicia uma lista vazia
-        let bancoVideos = JSON.parse(localStorage.getItem('iotubi_db')) || [];
-
-        function navegarPara(telaNome) {
-            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
-            
-            document.getElementById('tela-' + telaNome).classList.add('ativa');
-            const navBtn = document.getElementById('nav-' + telaNome);
-            if(navBtn) navBtn.classList.add('ativo');
-
-            if(telaNome !== 'watch') document.getElementById('videoPlayer').pause();
-            window.scrollTo(0,0);
-        }
-
-        function atualizarTextoArquivo() {
-            const fileInput = document.getElementById('inputVideo');
-            const label = document.getElementById('fileLabel');
-            if(fileInput.files.length > 0) {
-                label.innerText = "✅ Vídeo carregado: " + fileInput.files[0].name;
-                label.style.borderColor = "#00ff00";
-            }
-        }
-
-        // SALVA O VÍDEO PERMANENTEMENTE
-        function salvarNovoVideo() {
-            const fileInput = document.getElementById('inputVideo');
-            const tituloInput = document.getElementById('inputTitulo').value.trim();
-            const canalInput = document.getElementById('inputCanal').value.trim() || "@anonimo";
-
-            if (fileInput.files.length === 0 || tituloInput === "") {
-                alert("Por favor, selecione um vídeo e digite um título!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            // Transforma o arquivo de vídeo em uma string base64 guardada direto no cache local
-            reader.onload = function(e) {
-                const novoVideo = {
-                    id: Date.now(),
-                    titulo: tituloInput,
-                    canal: canalInput,
-                    videoData: e.target.result // Conteúdo binário salvo localmente
-                };
-
-                bancoVideos.unshift(novoVideo); // Coloca no topo do feed
-                localStorage.setItem('iotubi_db', JSON.stringify(bancoVideos)); // Salva no LocalStorage do celular
-
-                // Limpa o formulário
-                document.getElementById('inputTitulo').value = "";
-                document.getElementById('inputCanal').value = "";
-                document.getElementById('fileLabel').innerHTML = "📁 Selecionar da Galeria <input type='file' id='inputVideo' accept='video/*' onchange='atualizarTextoArquivo()'>";
-                document.getElementById('fileLabel').style.borderColor = "#555";
-
-                alert("Vídeo postado com sucesso!");
-                renderizarFeed();
-                navegarPara('home');
-            };
-
-            reader.readAsDataURL(file);
-        }
-
-        // RENDERIZA O FEED DA TELA HOME
-        function renderizarFeed() {
-            const container = document.getElementById('feedPrincipal');
-            container.innerHTML = "";
-
-            if (bancoVideos.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
-                        <p style="font-size: 1.2rem;">O feed está vazio!</p>
-                        <p style="font-size: 0.9rem; margin-top: 8px;">Toque no botão <strong>CRIAR (➕)</strong> abaixo para postar seu primeiro vídeo direto da sua galeria.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            bancoVideos.forEach(v => {
-                const card = document.createElement('div');
-                card.className = 'video-card-grande';
-                card.onclick = () => abrirPlayer(v.id);
-                card.innerHTML = `
-                    <div class="thumb-grande">
-                        <span class="play-icon">▶</span>
-                        <div style="opacity: 0.4; font-size: 0.8rem; word-break: break-all;">${v.titulo}</div>
-                    </div>
-                    <div class="home-detalhes">
-                        <div class="canal-avatar">${v.canal.charAt(0).toUpperCase()}</div>
-                        <div class="home-texto">
-                            <div class="home-titulo">${v.titulo}</div>
-                            <div class="home-meta">${v.canal} • Postado localmente</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // ABRE O PLAYER E EXECUTA O VÍDEO DA MEMÓRIA
-        function abrirPlayer(idVideo) {
-            const v = bancoVideos.find(item => item.id === idVideo);
-            const player = document.getElementById('videoPlayer');
-            
-            player.src = v.videoData;
-            player.load();
-            player.play();
-
-            document.getElementById('watchTitulo').innerText = v.titulo;
-            document.getElementById('watchMeta').innerText = `${v.canal} • Assistindo agora offline`;
-
-            navegarPara('watch');
-        }
-
-        // Inicializa o feed ao abrir o app
-        renderizarFeed();
-    </script>
-</body>
-      </html>
-                                                          
