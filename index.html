@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Iotubi Creator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+        body { background-color: #0f0f0f; color: #fff; padding-bottom: 75px; padding-top: 55px; }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 55px;
+            background-color: #0f0f0f; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 16px; z-index: 100;
+            border-bottom: 1px solid #272727;
+        }
+        .logo { display: flex; align-items: center; gap: 6px; font-weight: bold; font-size: 1.3rem; cursor: pointer; }
+        .logo span { background: #ff0000; color: #fff; padding: 2px 6px; border-radius: 6px; font-weight: 900; }
+
+        /* --- TELAS --- */
+        .tela { display: none; padding: 15px; }
+        .tela.ativa { display: block; }
+
+        /* --- HOME (FEED) --- */
+        .grid-home { display: flex; flex-direction: column; gap: 20px; }
+        .video-card-grande { width: 100%; cursor: pointer; }
+        
+        .thumb-grande { 
+            width: 100%; aspect-ratio: 16/9; position: relative; border-radius: 12px; 
+            overflow: hidden; display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; font-size: 1.1rem; text-align: center; padding: 10px;
+            background: linear-gradient(45deg, #1f1c2c, #928dab);
+        }
+        .play-icon { position: absolute; font-size: 2.5rem; opacity: 0.8; color: #fff; }
+
+        .home-detalhes { display: flex; gap: 12px; margin-top: 10px; }
+        .canal-avatar { 
+            width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; 
+            display: flex; justify-content: center; align-items: center; 
+            font-weight: bold; background: #ff0000; color: #fff; 
+        }
+        .home-texto { flex: 1; }
+        .home-titulo { font-size: 0.95rem; font-weight: bold; line-height: 1.4; color: #f1f1f1; }
+        .home-meta { font-size: 0.8rem; color: #aaa; margin-top: 4px; }
+
+        /* --- WATCH (PLAYER) --- */
+        .video-wrapper { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; }
+        .video-wrapper video { width: 100%; height: 100%; object-fit: contain; }
+        .watch-info { padding: 12px 4px; }
+        .watch-titulo { font-size: 1.1rem; font-weight: bold; }
+        .watch-meta { font-size: 0.85rem; color: #aaa; margin: 6px 0 12px 0; }
+
+        /* --- ENVIAR VÍDEO (FORMULÁRIO) --- */
+        .form-upload { display: flex; flex-direction: column; gap: 15px; background: #1a1a1a; padding: 20px; border-radius: 12px; }
+        .form-grupo { display: flex; flex-direction: column; gap: 6px; }
+        .form-grupo label { font-size: 0.9rem; font-weight: bold; color: #aaa; }
+        .form-grupo input[type="text"] { background: #2f2f2f; border: 1px solid #444; padding: 10px; border-radius: 6px; color: #fff; outline: none; }
+        .file-label { background: #272727; border: 2px dashed #555; padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .file-label input { display: none; }
+        .btn-postar { background: #ff0000; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .btn-postar:active { background: #cc0000; }
+
+        /* --- NAV INFERIOR --- */
+        nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background-color: #0f0f0f; border-top: 1px solid #272727;
+            display: flex; justify-content: space-around; align-items: center; z-index: 100;
+        }
+        .nav-item { background: none; border: none; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; cursor: pointer; width: 25%; }
+        .nav-item.ativo { color: #fff; }
+        .nav-item span { font-size: 1.3rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="navegarPara('home')"><span>Io</span>tubi</div>
+    </header>
+
+    <div id="tela-home" class="tela ativa">
+        <div class="grid-home" id="feedPrincipal"></div>
+    </div>
+
+    <div id="tela-watch" class="tela">
+        <div class="video-wrapper">
+            <video id="videoPlayer" controls autoplay></video>
+        </div>
+        <div class="watch-info">
+            <div class="watch-titulo" id="watchTitulo">Título</div>
+            <div class="watch-meta" id="watchMeta">Canal • Postado agora</div>
+        </div>
+    </div>
+
+    <div id="tela-postar" class="tela">
+        <h2 style="margin-bottom: 15px;">Criar nova postagem</h2>
+        <div class="form-upload">
+            <div class="form-grupo">
+                <label>Arquivo de Vídeo</label>
+                <label class="file-label" id="fileLabel">
+                    📁 Selecionar da Galeria
+                    <input type="file" id="inputVideo" accept="video/*" onchange="atualizarTextoArquivo()">
+                </label>
+            </div>
+            <div class="form-grupo">
+                <label>Título do Vídeo</label>
+                <input type="text" id="inputTitulo" placeholder="Ex: Meu clipe favorito!">
+            </div>
+            <div class="form-grupo">
+                <label>Nome do Canal</label>
+                <input type="text" id="inputCanal" placeholder="Ex: @meucanal">
+            </div>
+            <button class="btn-postar" onclick="salvarNovoVideo()">Publicar Vídeo</button>
+        </div>
+    </div>
+
+    <nav>
+        <button class="nav-item ativo" id="nav-home" onclick="navegarPara('home')"><span>🏠</span>Home</button>
+        <button class="nav-item" id="nav-postar" onclick="navegarPara('postar')"><span>➕</span>Criar</button>
+    </nav>
+
+    <script>
+        // Carrega os vídeos salvos no navegador ou inicia uma lista vazia
+        let bancoVideos = JSON.parse(localStorage.getItem('iotubi_db')) || [];
+
+        function navegarPara(telaNome) {
+            document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('ativo'));
+            
+            document.getElementById('tela-' + telaNome).classList.add('ativa');
+            const navBtn = document.getElementById('nav-' + telaNome);
+            if(navBtn) navBtn.classList.add('ativo');
+
+            if(telaNome !== 'watch') document.getElementById('videoPlayer').pause();
+            window.scrollTo(0,0);
+        }
+
+        function atualizarTextoArquivo() {
+            const fileInput = document.getElementById('inputVideo');
+            const label = document.getElementById('fileLabel');
+            if(fileInput.files.length > 0) {
+                label.innerText = "✅ Vídeo carregado: " + fileInput.files[0].name;
+                label.style.borderColor = "#00ff00";
+            }
+        }
+
+        // SALVA O VÍDEO PERMANENTEMENTE
+        function salvarNovoVideo() {
+            const fileInput = document.getElementById('inputVideo');
+            const tituloInput = document.getElementById('inputTitulo').value.trim();
+            const canalInput = document.getElementById('inputCanal').value.trim() || "@anonimo";
+
+            if (fileInput.files.length === 0 || tituloInput === "") {
+                alert("Por favor, selecione um vídeo e digite um título!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            // Transforma o arquivo de vídeo em uma string base64 guardada direto no cache local
+            reader.onload = function(e) {
+                const novoVideo = {
+                    id: Date.now(),
+                    titulo: tituloInput,
+                    canal: canalInput,
+                    videoData: e.target.result // Conteúdo binário salvo localmente
+                };
+
+                bancoVideos.unshift(novoVideo); // Coloca no topo do feed
+                localStorage.setItem('iotubi_db', JSON.stringify(bancoVideos)); // Salva no LocalStorage do celular
+
+                // Limpa o formulário
+                document.getElementById('inputTitulo').value = "";
+                document.getElementById('inputCanal').value = "";
+                document.getElementById('fileLabel').innerHTML = "📁 Selecionar da Galeria <input type='file' id='inputVideo' accept='video/*' onchange='atualizarTextoArquivo()'>";
+                document.getElementById('fileLabel').style.borderColor = "#555";
+
+                alert("Vídeo postado com sucesso!");
+                renderizarFeed();
+                navegarPara('home');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // RENDERIZA O FEED DA TELA HOME
+        function renderizarFeed() {
+            const container = document.getElementById('feedPrincipal');
+            container.innerHTML = "";
+
+            if (bancoVideos.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #aaa; margin-top: 50px; padding: 20px;">
+                        <p style="font-size: 1.2rem;">O feed está vazio!</p>
+                        <p style="font-size: 0.9rem; margin-top: 8px;">Toque no botão <strong>CRIAR (➕)</strong> abaixo para postar seu primeiro vídeo direto da sua galeria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            bancoVideos.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'video-card-grande';
+                card.onclick = () => abrirPlayer(v.id);
+                card.innerHTML = `
+                    <div class="thumb-grande">
+                        <span class="play-icon">▶</span>
+                        <div style="opacity: 0.4; font-size: 0.8rem; word-break: break-all;">${v.titulo}</div>
+                    </div>
+                    <div class="home-detalhes">
+                        <div class="canal-avatar">${v.canal.charAt(0).toUpperCase()}</div>
+                        <div class="home-texto">
+                            <div class="home-titulo">${v.titulo}</div>
+                            <div class="home-meta">${v.canal} • Postado localmente</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ABRE O PLAYER E EXECUTA O VÍDEO DA MEMÓRIA
+        function abrirPlayer(idVideo) {
+            const v = bancoVideos.find(item => item.id === idVideo);
+            const player = document.getElementById('videoPlayer');
+            
+            player.src = v.videoData;
+            player.load();
+            player.play();
+
+            document.getElementById('watchTitulo').innerText = v.titulo;
+            document.getElementById('watchMeta').innerText = `${v.canal} • Assistindo agora offline`;
+
+            navegarPara('watch');
+        }
+
+        // Inicializa o feed ao abrir o app
+        renderizarFeed();
+    </script>
+</body>
+      </html>
+                                                          
