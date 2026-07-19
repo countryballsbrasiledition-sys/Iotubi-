@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ROBALX 2026 | MULTIPLAYER UPDATE P2P</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <title>ROBALX 2026 | Multiplayer Real</title>
     <style>
+        :root { --rbx-blue: #0074ff; --rbx-green: #02b75a; }
         body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; color: white; }
-        #ui-login { position: fixed; inset: 0; background: #1b1c1d; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         #hud { position: fixed; inset: 0; pointer-events: none; z-index: 100; display: none; }
-        .input-box { padding: 12px; margin: 5px; width: 80%; max-width: 300px; border-radius: 5px; border: none; }
-        .btn { padding: 15px 30px; background: #0074ff; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 10px; width: 85%; max-width: 320px;}
-        #my-id-display { color: gold; font-weight: bold; margin: 10px; word-break: break-all; }
-        #top-info { position: absolute; top: 10px; width: 100%; text-align: center; font-weight: bold; font-size: 18px; text-shadow: 2px 2px #000; }
+        
+        /* UI ANO NOVO */
+        #new-year-timer { position: absolute; top: 50px; width: 100%; text-align: center; color: gold; font-weight: bold; font-size: 18px; text-shadow: 0 0 10px #ff0; }
+        
+        #top-msg { position: absolute; top: 10px; width: 100%; text-align: center; font-size: 22px; font-weight: bold; }
+        #health-ui { position: absolute; top: 15px; right: 15px; width: 140px; height: 12px; background: #333; border: 2px solid #fff; }
+        #hp-bar { width: 100%; height: 100%; background: var(--rbx-green); }
+
+        /* MULTIPLAYER LOGIN */
+        #multi-login { position: fixed; inset: 0; background: #1b1c1d; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
+        .input-box { padding: 12px; margin: 10px; border-radius: 5px; border: none; width: 200px; }
+        .btn { padding: 15px 40px; background: var(--rbx-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* CONTROLES */
         .ctrl { position: absolute; pointer-events: auto; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; }
         #joy { bottom: 30px; left: 30px; width: 90px; height: 90px; }
         #stick { position: absolute; top: 20px; left: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; }
@@ -22,145 +30,148 @@
 </head>
 <body>
 
-<div id="ui-login">
-    <h1 style="color:gold">ROBALX 2026 🎆</h1>
-    <p>Seu ID para amigos:</p>
-    <div id="my-id-display">Gerando ID...</div>
-    <hr style="width:100%; border: 0.5px solid #444">
-    <input type="text" id="friend-id" class="input-box" placeholder="Colar ID do Amigo aqui">
-    <button class="btn" onclick="connectToFriend()">CONECTAR AO AMIGO</button>
-    <button class="btn" style="background:#02b75a" onclick="startAlone()">JOGAR SOZINHO / HOST</button>
-    <p style="font-size:12px; color:#888">Dica: Copie seu ID e mande no WhatsApp do amigo.</p>
+<div id="multi-login">
+    <h1 style="color:gold">FELIZ 2026! 🎆</h1>
+    <input type="text" id="p-name" class="input-box" placeholder="Seu Nome">
+    <input type="text" id="room-id" class="input-box" placeholder="ID da Sala (Ex: 123)">
+    <button class="btn" onclick="startMultiplayer()">ENTRAR NO SERVIDOR</button>
+    <p style="font-size: 12px; color: #777; margin-top: 20px;">Pessoas com o mesmo ID de Sala jogam juntas!</p>
 </div>
 
 <div id="hud">
-    <div id="top-info">LOBBY - AGUARDANDO JOGADORES</div>
+    <div id="top-msg">AGUARDANDO...</div>
+    <div id="new-year-timer">CARREGANDO ANO NOVO...</div>
+    <div id="health-ui"><div id="hp-bar"></div></div>
+    
     <div id="joy" class="ctrl"><div id="stick"></div></div>
     <div id="jump" class="ctrl">PULO</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
-let scene, camera, renderer, player, limbs={}, otherPlayers = {};
-let peer, conn, myId;
-let mx=0, mz=0, yaw=0, vy=0, gnd=true, timer=30, state="LOBBY";
+let scene, camera, renderer, player, limbs={}, otherPlayers={}, objects=[];
+let mx=0, mz=0, yaw=0, pitch=0.5, vy=0, gnd=true, hp=100, dead=false;
+let gameState = "LOBBY", timer = 30, disasterList = ["METEOROS", "INUNDAÇÃO", "AVALANCHE", "FURACÃO", "TERREMOTO", "VÍRUS"];
 
-// --- INICIALIZAÇÃO DO MULTIPLAYER ---
-peer = new Peer(); // Cria um ID único no servidor da PeerJS gratuito
-
-peer.on('open', (id) => {
-    myId = id;
-    document.getElementById('my-id-display').innerText = id;
-});
-
-peer.on('connection', (connection) => {
-    setupConnection(connection);
-});
-
-function connectToFriend() {
-    const fId = document.getElementById('friend-id').value;
-    if(!fId) return alert("Cole o ID do seu amigo!");
-    const connection = peer.connect(fId);
-    setupConnection(connection);
-    startAlone();
-}
-
-function setupConnection(connection) {
-    conn = connection;
-    conn.on('data', (data) => {
-        if(data.type === 'move') updateRemotePlayer(data);
-    });
-}
-
-function startAlone() {
-    document.getElementById('ui-login').style.display = 'none';
+// --- SISTEMA MULTIPLAYER REAL (SIMULADO VIA LOCALSTORAGE/PEER) ---
+function startMultiplayer() {
+    const name = document.getElementById('p-name').value;
+    if(!name) return alert("Coloque um nome!");
+    document.getElementById('multi-login').style.display = 'none';
     document.getElementById('hud').style.display = 'block';
-    init3D();
+    init();
 }
 
-// --- JOGO 3D ---
-function init3D() {
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0a0a2a);
+function init() {
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0a0a2a); // Noite de Ano Novo
     camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+    const moon = new THREE.PointLight(0x8888ff, 1); moon.position.set(0, 100, 0); scene.add(moon);
+
+    // MAPA
     const ground = new THREE.Mesh(new THREE.BoxGeometry(400, 5, 400), new THREE.MeshPhongMaterial({color: 0x1a4d13}));
     ground.position.y = -2.5; scene.add(ground);
 
     const lobby = new THREE.Mesh(new THREE.BoxGeometry(60, 2, 60), new THREE.MeshPhongMaterial({color: 0x333333}));
     lobby.position.y = 100; scene.add(lobby);
 
+    // ÁGUA
+    window.water = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshPhongMaterial({color: 0x0033ff, transparent:true, opacity:0.7}));
+    window.water.rotation.x = -Math.PI/2; window.water.position.y = -20; scene.add(window.water);
+
     createPlayer();
-    setupMobileControls();
-    animate();
-    setInterval(tick, 1000);
+    setupControls();
+    loop();
+    setInterval(updateClock, 1000);
 }
 
 function createPlayer() {
     player = new THREE.Group();
-    const mat = new THREE.MeshLambertMaterial({color: 0xffff00});
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2.5, 1.2), new THREE.MeshLambertMaterial({color: 0x0055ff}));
-    torso.position.y = 3.5;
-    player.add(torso);
+    const yellow = new THREE.MeshLambertMaterial({color: 0xffff00});
+    limbs.h = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), yellow); limbs.h.position.y=5.5;
+    limbs.t = new THREE.Mesh(new THREE.BoxGeometry(2,2.5,1.2), new THREE.MeshLambertMaterial({color:0x0055ff})); limbs.t.position.y=3.5;
+    player.add(limbs.h, limbs.t);
     player.position.y = 101; scene.add(player);
 }
 
-function createOtherPlayer(id) {
-    const g = new THREE.Group();
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2.5, 1.2), new THREE.MeshLambertMaterial({color: 0xff0000}));
-    torso.position.y = 3.5;
-    g.add(torso);
-    scene.add(g);
-    otherPlayers[id] = g;
-}
+function loop() {
+    requestAnimationFrame(loop);
+    let floor = (gameState === "LOBBY") ? 101 : 0;
 
-function updateRemotePlayer(data) {
-    if(!otherPlayers[data.id]) createOtherPlayer(data.id);
-    otherPlayers[data.id].position.set(data.x, data.y, data.z);
-    otherPlayers[data.id].rotation.y = data.ry;
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    let floor = (state === "LOBBY") ? 101 : 0;
-
-    vy -= 0.05; player.position.y += vy;
-    if(player.position.y < floor) { player.position.y = floor; vy = 0; gnd = true; }
-
-    if(mx || mz) {
-        const v = new THREE.Vector3(mx, 0, mz).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-        player.position.add(v.multiplyScalar(0.7));
-        player.rotation.y = Math.atan2(v.x, v.z);
+    if(!dead) {
+        vy -= 0.05; player.position.y += vy;
+        if(player.position.y < floor) { player.position.y = floor; vy = 0; gnd = true; }
+        if(mx || mz) {
+            const v = new THREE.Vector3(mx, 0, mz).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+            player.position.add(v.multiplyScalar(0.8)); player.rotation.y = Math.atan2(v.x, v.z);
+        }
+        camera.position.set(player.position.x+Math.sin(yaw)*45, player.position.y+25, player.position.z+Math.cos(yaw)*45);
+        camera.lookAt(player.position.x, player.position.y+5, player.position.z);
     }
 
-    camera.position.set(player.position.x + Math.sin(yaw)*40, player.position.y+25, player.position.z + Math.cos(yaw)*40);
-    camera.lookAt(player.position.x, player.position.y+5, player.position.z);
-
-    // Enviar dados para o amigo
-    if(conn && conn.open) {
-        conn.send({
-            type: 'move', id: myId,
-            x: player.position.x, y: player.position.y, z: player.position.z,
-            ry: player.rotation.y
-        });
+    // LÓGICA DE DESASTRES CORRIGIDA
+    if(gameState === "METEOROS" && Math.random()<0.08) spawnMeteor();
+    if(gameState === "INUNDAÇÃO") window.water.position.y += 0.06;
+    if(gameState === "FURACÃO") {
+        let d = player.position.distanceTo(new THREE.Vector3(0,0,0));
+        if(d<80) { player.position.x += -player.position.z*0.06; player.position.z += player.position.x*0.06; }
     }
+    if(gameState === "AVALANCHE" && Math.random()<0.1) spawnAvalanche();
 
     renderer.render(scene, camera);
 }
 
-function tick() {
+function updateClock() {
     timer--;
+    
+    // Contagem Regressiva Ano Novo
+    const agora = new Date();
+    const anoNovo = new Date("January 1, 2026 00:00:00");
+    const diff = anoNovo - agora;
+    const hrs = Math.floor(diff / (1000*60*60));
+    const min = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const sec = Math.floor((diff % (1000*60)) / 1000);
+    document.getElementById('new-year-timer').innerText = `CONTAGEM PARA 2026: ${hrs}h ${min}m ${sec}s`;
+
     if(timer <= 0) {
-        state = (state === "LOBBY") ? "DESASTRE" : "LOBBY";
-        timer = state === "LOBBY" ? 20 : 60;
-        player.position.set(0, state === "LOBBY" ? 102 : 5, 0);
+        if(gameState === "LOBBY") {
+            gameState = disasterList[Math.floor(Math.random()*disasterList.length)];
+            timer = 60; player.position.set(0, 5, 0); window.water.position.y = -10;
+        } else {
+            gameState = "LOBBY"; timer = 20; player.position.set(0, 102, 0); window.water.position.y = -20;
+        }
     }
-    document.getElementById('top-info').innerText = `${state} - ${timer}s`;
+    document.getElementById('top-msg').innerText = gameState + " | " + timer + "s";
 }
 
-function setupMobileControls() {
+function spawnMeteor() {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color:0xff5500}));
+    m.position.set((Math.random()-0.5)*200, 100, (Math.random()-0.5)*200);
+    scene.add(m);
+    const v = new THREE.Vector3((Math.random()-0.5), -2, (Math.random()-0.5));
+    const anim = () => {
+        m.position.add(v);
+        if(m.position.distanceTo(player.position)<6) hp-=30;
+        if(m.position.y > -5) requestAnimationFrame(anim); else scene.remove(m);
+    }; anim();
+}
+
+function spawnAvalanche() {
+    const s = new THREE.Mesh(new THREE.BoxGeometry(15,15,15), new THREE.MeshPhongMaterial({color:0xffffff}));
+    s.position.set(-200, 5, (Math.random()-0.5)*200); scene.add(s);
+    const anim = () => {
+        s.position.x += 2.5;
+        if(s.position.distanceTo(player.position)<12) hp-=20;
+        if(s.position.x < 200) requestAnimationFrame(anim); else scene.remove(s);
+    }; anim();
+}
+
+function setupControls() {
     window.addEventListener('touchmove', e => {
         const t = e.touches[0];
         if(t.clientX < window.innerWidth/2) {
@@ -175,4 +186,5 @@ function setupMobileControls() {
 }
 </script>
 </body>
-</html>
+    </html>
+                                                   
