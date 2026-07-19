@@ -3,175 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ROBALX 2026 | Multiplayer Real</title>
+    <title>ROBALX 2027 | MULTIPLAYER & CHAT REAL</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         :root { --rbx-blue: #0074ff; --rbx-green: #02b75a; }
-        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; color: white; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; color: white; user-select: none; }
+        
+        #ui-login { position: fixed; inset: 0; background: #1b1c1d; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         #hud { position: fixed; inset: 0; pointer-events: none; z-index: 100; display: none; }
+        .input-box { padding: 12px; margin: 5px; width: 80%; max-width: 300px; border-radius: 5px; border: none; font-size: 16px; }
+        .btn { padding: 15px 30px; background: var(--rbx-blue); color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 10px; width: 85%; max-width: 320px; font-size: 16px; }
+        #my-id-display { color: gold; font-weight: bold; margin: 10px; word-break: break-all; font-size: 18px; }
         
-        /* UI ANO NOVO */
-        #new-year-timer { position: absolute; top: 50px; width: 100%; text-align: center; color: gold; font-weight: bold; font-size: 18px; text-shadow: 0 0 10px #ff0; }
-        
-        #top-msg { position: absolute; top: 10px; width: 100%; text-align: center; font-size: 22px; font-weight: bold; }
-        #health-ui { position: absolute; top: 15px; right: 15px; width: 140px; height: 12px; background: #333; border: 2px solid #fff; }
+        /* UI HUD JOGO */
+        #top-info { position: absolute; top: 10px; width: 100%; text-align: center; font-weight: bold; font-size: 20px; text-shadow: 2px 2px #000; }
+        #countdown-event { position: absolute; top: 40px; width: 100%; text-align: center; color: gold; font-size: 14px; text-shadow: 1px 1px #000; }
+        #health-ui { position: absolute; top: 15px; right: 15px; width: 130px; height: 12px; background: #333; border: 2px solid #fff; }
         #hp-bar { width: 100%; height: 100%; background: var(--rbx-green); }
 
-        /* MULTIPLAYER LOGIN */
-        #multi-login { position: fixed; inset: 0; background: #1b1c1d; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
-        .input-box { padding: 12px; margin: 10px; border-radius: 5px; border: none; width: 200px; }
-        .btn { padding: 15px 40px; background: var(--rbx-blue); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* CHAT REAL P2P */
+        #chat-box { position: absolute; top: 70px; left: 15px; width: 240px; height: 110px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow-y: hidden; display: flex; flex-direction: column-reverse; padding: 5px; font-size: 13px; font-weight: bold; text-shadow: 1px 1px #000; }
+        #chat-input { position: absolute; top: 190px; left: 15px; width: 180px; background: rgba(0,0,0,0.6); border: 1px solid #fff; color: white; padding: 6px; pointer-events: auto; border-radius: 4px; font-size: 14px; }
 
-        /* CONTROLES */
+        /* HOTBAR */
+        #hotbar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; pointer-events: auto; }
+        .slot { width: 55px; height: 55px; background: rgba(0,0,0,0.6); border: 2px solid #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .slot.active { background: rgba(255,255,255,0.3); border-color: var(--rbx-blue); }
+
+        /* CONTROLES MOBILE */
         .ctrl { position: absolute; pointer-events: auto; background: rgba(255,255,255,0.1); border: 2px solid #fff; border-radius: 50%; }
         #joy { bottom: 30px; left: 30px; width: 90px; height: 90px; }
         #stick { position: absolute; top: 20px; left: 20px; width: 50px; height: 50px; background: #fff; border-radius: 50%; }
-        #jump { bottom: 40px; right: 30px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        #jump { bottom: 40px; right: 30px; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div id="multi-login">
-    <h1 style="color:gold">FELIZ 2026! 🎆</h1>
-    <input type="text" id="p-name" class="input-box" placeholder="Seu Nome">
-    <input type="text" id="room-id" class="input-box" placeholder="ID da Sala (Ex: 123)">
-    <button class="btn" onclick="startMultiplayer()">ENTRAR NO SERVIDOR</button>
-    <p style="font-size: 12px; color: #777; margin-top: 20px;">Pessoas com o mesmo ID de Sala jogam juntas!</p>
+<div id="ui-login">
+    <h1 style="color:gold; margin-bottom:5px;">ROBALX SURVIVAL 🎆</h1>
+    <p style="margin:5px 0 15px 0; color:#aaa;">Multiplayer Real P2P</p>
+    <input type="text" id="username" class="input-box" placeholder="Seu Nome/Nick">
+    <p style="margin: 10px 0 0 0;">Seu ID para passar ao amigo:</p>
+    <div id="my-id-display">Gerando ID único...</div>
+    <hr style="width:90%; border: 0.5px solid #444; margin: 15px 0;">
+    <input type="text" id="friend-id" class="input-box" placeholder="Colar ID do seu amigo aqui">
+    <button class="btn" onclick="connectToFriend()">CONECTAR E JOGAR</button>
+    <button class="btn" style="background:var(--rbx-green)" onclick="startHost()">JOGAR SOZINHO / SER HOST</button>
 </div>
 
 <div id="hud">
-    <div id="top-msg">AGUARDANDO...</div>
-    <div id="new-year-timer">CARREGANDO ANO NOVO...</div>
+    <div id="top-info">LOBBY - AGUARDANDO JOGADORES</div>
+    <div id="countdown-event">CONTAGEM EVENTO</div>
     <div id="health-ui"><div id="hp-bar"></div></div>
     
+    <div id="chat-box"></div>
+    <input type="text" id="chat-input" placeholder="Digite e dê Enter...">
+
+    <div id="hotbar">
+        <div class="slot active" id="s0" onclick="setSlot(0)">🖐️</div>
+        <div class="slot" id="s1" onclick="setSlot(1)">🌀</div>
+    </div>
+
     <div id="joy" class="ctrl"><div id="stick"></div></div>
     <div id="jump" class="ctrl">PULO</div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <script>
-let scene, camera, renderer, player, limbs={}, otherPlayers={}, objects=[];
-let mx=0, mz=0, yaw=0, pitch=0.5, vy=0, gnd=true, hp=100, dead=false;
-let gameState = "LOBBY", timer = 30, disasterList = ["METEOROS", "INUNDAÇÃO", "AVALANCHE", "FURACÃO", "TERREMOTO", "VÍRUS"];
+let scene, camera, renderer, player, limbs={}, otherPlayers = {}, water;
+let peer, conn, myId, myName = "Player";
+let mx=0, mz=0, yaw=0, vy=0, gnd=true, hp=100, dead=false;
+let timer=20, state="LOBBY", activeSlot=0, jumpPwr=0.7;
+let disasterList = ["METEOROS", "INUNDAÇÃO", "AVALANCHE", "FURACÃO", "TERREMOTO"];
 
-// --- SISTEMA MULTIPLAYER REAL (SIMULADO VIA LOCALSTORAGE/PEER) ---
-function startMultiplayer() {
-    const name = document.getElementById('p-name').value;
-    if(!name) return alert("Coloque um nome!");
-    document.getElementById('multi-login').style.display = 'none';
-    document.getElementById('hud').style.display = 'block';
-    init();
+// --- PROTOCOLO DE CONEXÃO MULTIPLAYER ---
+peer = new Peer();
+
+peer.on('open', (id) => {
+    myId = id;
+    document.getElementById('my-id-display').innerText = id;
+});
+
+peer.on('connection', (connection) => {
+    setupConnection(connection);
+    if(document.getElementById('ui-login').style.display !== 'none') {
+        startHost();
+    }
+});
+
+function connectToFriend() {
+    getUserName();
+    const fId = document.getElementById('friend-id').value.trim();
+    if(!fId) return alert("Cole o ID do seu amigo!");
+    setupConnection(peer.connect(fId));
+    startHost();
 }
 
-function init() {
-    scene = new THREE.Scene(); scene.background = new THREE.Color(0x0a0a2a); // Noite de Ano Novo
+function startHost() {
+    getUserName();
+    document.getElementById('ui-login').style.display = 'none';
+    document.getElementById('hud').style.display = 'block';
+    init3D();
+}
+
+function getUserName() {
+    const inputName = document.getElementById('username').value.trim();
+    if(inputName) myName = inputName;
+}
+
+function setupConnection(connection) {
+    conn = connection;
+    conn.on('open', () => {
+        conn.send({ type: 'handshake', name: myName });
+    });
+    conn.on('data', (data) => {
+        if(data.type === 'move') updateRemotePlayer(data);
+        if(data.type === 'chat') receiveChatMessage(data.name, data.message);
+        if(data.type === 'handshake') addLogMessage(`👥 ${data.name} entrou na partida!`);
+    });
+}
+
+// --- CORE CHAT E ENVIOS ---
+const chatInput = document.getElementById('chat-input');
+chatInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' && chatInput.value.trim()) {
+        const msg = chatInput.value.trim();
+        receiveChatMessage(myName, msg);
+        if(conn && conn.open) {
+            conn.send({ type: 'chat', name: myName, message: msg });
+        }
+        chatInput.value = '';
+        chatInput.blur();
+    }
+});
+
+function receiveChatMessage(user, msg) {
+    addLogMessage(`[${user}]: ${msg}`);
+}
+
+function addLogMessage(text) {
+    const box = document.getElementById('chat-box');
+    box.innerHTML = `<div>${text}</div>` + box.innerHTML;
+}
+
+// --- GRAPHICS & PHYSICS ENGINE ---
+function init3D() {
+    scene = new THREE.Scene(); scene.background = new THREE.Color(0x08081a);
     camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-    const moon = new THREE.PointLight(0x8888ff, 1); moon.position.set(0, 100, 0); scene.add(moon);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const moon = new THREE.DirectionalLight(0x7788ff, 0.5); moon.position.set(0, 100, 50); scene.add(moon);
 
-    // MAPA
-    const ground = new THREE.Mesh(new THREE.BoxGeometry(400, 5, 400), new THREE.MeshPhongMaterial({color: 0x1a4d13}));
+    const ground = new THREE.Mesh(new THREE.BoxGeometry(450, 5, 450), new THREE.MeshPhongMaterial({color: 0x143d0b}));
     ground.position.y = -2.5; scene.add(ground);
 
-    const lobby = new THREE.Mesh(new THREE.BoxGeometry(60, 2, 60), new THREE.MeshPhongMaterial({color: 0x333333}));
+    const lobby = new THREE.Mesh(new THREE.BoxGeometry(60, 2, 60), new THREE.MeshPhongMaterial({color: 0x2b2b2b}));
     lobby.position.y = 100; scene.add(lobby);
 
-    // ÁGUA
-    window.water = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshPhongMaterial({color: 0x0033ff, transparent:true, opacity:0.7}));
-    window.water.rotation.x = -Math.PI/2; window.water.position.y = -20; scene.add(window.water);
+    water = new THREE.Mesh(new THREE.PlaneGeometry(450, 450), new THREE.MeshPhongMaterial({color: 0x0044cc, transparent:true, opacity:0.7}));
+    water.rotation.x = -Math.PI/2; water.position.y = -20; scene.add(water);
 
-    createPlayer();
-    setupControls();
-    loop();
-    setInterval(updateClock, 1000);
+    createLocalAvatar();
+    setupMobileControls();
+    animate();
+    setInterval(gameClockTick, 1000);
 }
 
-function createPlayer() {
+function createLocalAvatar() {
     player = new THREE.Group();
     const yellow = new THREE.MeshLambertMaterial({color: 0xffff00});
-    limbs.h = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), yellow); limbs.h.position.y=5.5;
-    limbs.t = new THREE.Mesh(new THREE.BoxGeometry(2,2.5,1.2), new THREE.MeshLambertMaterial({color:0x0055ff})); limbs.t.position.y=3.5;
-    player.add(limbs.h, limbs.t);
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2.5, 1.2), new THREE.MeshLambertMaterial({color: 0x0055ff}));
+    torso.position.y = 3.5;
+    limbs.h = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), yellow); limbs.h.position.y = 5.5;
+    player.add(torso, limbs.h);
     player.position.y = 101; scene.add(player);
 }
 
-function loop() {
-    requestAnimationFrame(loop);
-    let floor = (gameState === "LOBBY") ? 101 : 0;
+function createRemoteAvatar(id) {
+    const g = new THREE.Group();
+    const yellow = new THREE.MeshLambertMaterial({color: 0xffff00});
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(2, 2.5, 1.2), new THREE.MeshLambertMaterial({color: 0xff3333}));
+    torso.position.y = 3.5;
+    const h = new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,1.5), yellow); h.position.y = 5.5;
+    g.add(torso, h); scene.add(g);
+    otherPlayers[id] = g;
+}
+
+function updateRemotePlayer(data) {
+    if(!otherPlayers[data.id]) createRemoteAvatar(data.id);
+    otherPlayers[data.id].position.set(data.x, data.y, data.z);
+    otherPlayers[data.id].rotation.y = data.ry;
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    let floor = (state === "LOBBY") ? 101 : 0;
 
     if(!dead) {
         vy -= 0.05; player.position.y += vy;
         if(player.position.y < floor) { player.position.y = floor; vy = 0; gnd = true; }
+
         if(mx || mz) {
             const v = new THREE.Vector3(mx, 0, mz).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-            player.position.add(v.multiplyScalar(0.8)); player.rotation.y = Math.atan2(v.x, v.z);
+            player.position.add(v.multiplyScalar(0.75));
+            player.rotation.y = Math.atan2(v.x, v.z);
         }
-        camera.position.set(player.position.x+Math.sin(yaw)*45, player.position.y+25, player.position.z+Math.cos(yaw)*45);
-        camera.lookAt(player.position.x, player.position.y+5, player.position.z);
+
+        camera.position.set(player.position.x + Math.sin(yaw)*40, player.position.y+22, player.position.z + Math.cos(yaw)*40);
+        camera.lookAt(player.position.x, player.position.y+4, player.position.z);
     }
 
-    // LÓGICA DE DESASTRES CORRIGIDA
-    if(gameState === "METEOROS" && Math.random()<0.08) spawnMeteor();
-    if(gameState === "INUNDAÇÃO") window.water.position.y += 0.06;
-    if(gameState === "FURACÃO") {
-        let d = player.position.distanceTo(new THREE.Vector3(0,0,0));
-        if(d<80) { player.position.x += -player.position.z*0.06; player.position.z += player.position.x*0.06; }
+    // Mecânica Real de Desastres
+    if(state === "METEOROS" && Math.random() < 0.05) spawnMeteor();
+    if(state === "INUNDAÇÃO") { water.position.y += 0.06; if(player.position.y < water.position.y) damagePlayer(0.5); }
+    if(state === "AVALANCHE" && Math.random() < 0.08) spawnSnowBlock();
+    if(state === "FURACÃO") {
+        let dist = player.position.distanceTo(new THREE.Vector3(0,0,0));
+        if(dist < 70) { player.position.x += -player.position.z*0.04; player.position.z += player.position.x*0.04; }
     }
-    if(gameState === "AVALANCHE" && Math.random()<0.1) spawnAvalanche();
+    if(state === "TERREMOTO" && gnd && Math.random() < 0.02) { vy = 0.4; camera.position.x += (Math.random()-0.5)*2; }
+
+    // Sincronização Outflow P2P
+    if(conn && conn.open) {
+        conn.send({
+            type: 'move', id: myId,
+            x: player.position.x, y: player.position.y, z: player.position.z,
+            ry: player.rotation.y
+        });
+    }
 
     renderer.render(scene, camera);
 }
 
-function updateClock() {
+function gameClockTick() {
     timer--;
     
-    // Contagem Regressiva Ano Novo
-    const agora = new Date();
-    const anoNovo = new Date("January 1, 2026 00:00:00");
-    const diff = anoNovo - agora;
-    const hrs = Math.floor(diff / (1000*60*60));
-    const min = Math.floor((diff % (1000*60*60)) / (1000*60));
-    const sec = Math.floor((diff % (1000*60)) / 1000);
-    document.getElementById('new-year-timer').innerText = `CONTAGEM PARA 2026: ${hrs}h ${min}m ${sec}s`;
+    // Ano Novo 2027 Dinâmico
+    const diff = new Date("January 1, 2027 00:00:00") - new Date();
+    const hrs = Math.floor(diff / 3600000);
+    const min = Math.floor((diff % 3600000) / 60000);
+    const sec = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdown-event').innerText = `EVENTO ANO NOVO 2027: ${hrs}h ${min}m ${sec}s`;
 
     if(timer <= 0) {
-        if(gameState === "LOBBY") {
-            gameState = disasterList[Math.floor(Math.random()*disasterList.length)];
-            timer = 60; player.position.set(0, 5, 0); window.water.position.y = -10;
+        if(state === "LOBBY") {
+            state = disasterList[Math.floor(Math.random()*disasterList.length)];
+            timer = 60; player.position.set(0, 5, 0); water.position.y = -20; hp = 100; dead = false; updateHPBar();
+            addLogMessage(`🚨 DESASTRE INICIADO: ${state}!`);
         } else {
-            gameState = "LOBBY"; timer = 20; player.position.set(0, 102, 0); window.water.position.y = -20;
+            state = "LOBBY"; timer = 20; player.position.set(0, 102, 0); water.position.y = -20;
+            addLogMessage("🏘️ Retornando ao Lobby seguro!");
         }
     }
-    document.getElementById('top-msg').innerText = gameState + " | " + timer + "s";
+    document.getElementById('top-info').innerText = `${state} (${timer}s)`;
 }
 
 function spawnMeteor() {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color:0xff5500}));
-    m.position.set((Math.random()-0.5)*200, 100, (Math.random()-0.5)*200);
-    scene.add(m);
-    const v = new THREE.Vector3((Math.random()-0.5), -2, (Math.random()-0.5));
-    const anim = () => {
-        m.position.add(v);
-        if(m.position.distanceTo(player.position)<6) hp-=30;
-        if(m.position.y > -5) requestAnimationFrame(anim); else scene.remove(m);
-    }; anim();
+    const m = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshBasicMaterial({color:0xff4400}));
+    m.position.set((Math.random()-0.5)*180, 90, (Math.random()-0.5)*180); scene.add(m);
+    const vel = new THREE.Vector3((Math.random()-0.5), -1.8, (Math.random()-0.5));
+    const step = () => {
+        m.position.add(vel);
+        if(m.position.distanceTo(player.position) < 6) damagePlayer(35);
+        if(m.position.y > -5) requestAnimationFrame(step); else scene.remove(m);
+    }; step();
 }
 
-function spawnAvalanche() {
-    const s = new THREE.Mesh(new THREE.BoxGeometry(15,15,15), new THREE.MeshPhongMaterial({color:0xffffff}));
-    s.position.set(-200, 5, (Math.random()-0.5)*200); scene.add(s);
-    const anim = () => {
-        s.position.x += 2.5;
-        if(s.position.distanceTo(player.position)<12) hp-=20;
-        if(s.position.x < 200) requestAnimationFrame(anim); else scene.remove(s);
-    }; anim();
+function spawnSnowBlock() {
+    const s = new THREE.Mesh(new THREE.BoxGeometry(12,12,12), new THREE.MeshPhongMaterial({color:0xffffff}));
+    s.position.set(-180, 6, (Math.random()-0.5)*180); scene.add(s);
+    const step = () => {
+        s.position.x += 2.2;
+        if(s.position.distanceTo(player.position) < 10) damagePlayer(25);
+        if(s.position.x < 180) requestAnimationFrame(step); else scene.remove(s);
+    }; step();
 }
 
-function setupControls() {
+function damagePlayer(n) {
+    if(dead) return;
+    hp -= n; updateHPBar();
+    if(hp <= 0) { dead = true; addLogMessage("💀 Você não sobreviveu!"); player.position.y = -50; }
+}
+
+function updateHPBar() { document.getElementById('hp-bar').style.width = Math.max(0, hp) + "%"; }
+
+function setSlot(i) {
+    activeSlot = i;
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+    document.getElementById('s'+i).classList.add('active');
+    jumpPwr = (i === 1) ? 1.2 : 0.7;
+}
+
+function setupMobileControls() {
     window.addEventListener('touchmove', e => {
         const t = e.touches[0];
         if(t.clientX < window.innerWidth/2) {
@@ -179,12 +305,12 @@ function setupControls() {
             const d = Math.min(Math.hypot(dx,dy), 40), a = Math.atan2(dy,dx);
             mx = Math.cos(a)*(d/40); mz = Math.sin(a)*(d/40);
             document.getElementById('stick').style.transform = `translate(${Math.cos(a)*d}px, ${Math.sin(a)*d}px)`;
-        } else { yaw -= (t.clientX - (window.lx||t.clientX))*0.008; window.lx=t.clientX; }
+        } else { yaw -= (t.clientX - (window.lx||t.clientX))*0.007; window.lx=t.clientX; }
     });
     window.addEventListener('touchend', () => { mx=mz=0; window.lx=null; document.getElementById('stick').style.transform=''; });
-    document.getElementById('jump').onclick = () => { if(gnd) { vy=0.8; gnd=false; } };
+    document.getElementById('jump').onclick = () => { if(gnd && !dead) { vy = jumpPwr; gnd = false; } };
 }
 </script>
 </body>
     </html>
-                                                   
+    
